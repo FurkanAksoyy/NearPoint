@@ -30,10 +30,11 @@ public class PlaceService {
     }
 
     public List<Place> getNearbyPlaces(Double latitude, Double longitude, Integer radius) {
-        //  First check if there is a record in the database for the same query
+        // First check if there is a record in the database for the same query
         List<Place> existingPlaces = placeRepository.findBySearchParameters(latitude, longitude, radius);
 
         if (!existingPlaces.isEmpty()) {
+            System.out.println("Cached results found, returning from database");
             return existingPlaces;
         }
 
@@ -44,54 +45,91 @@ public class PlaceService {
                 .queryParam("key", googlePlacesConfig.getApiKey())
                 .toUriString();
 
-        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-        List<Map<String, Object>> results = (List<Map<String, Object>>) response.getBody().get("results");
+        System.out.println("Calling Google Places API with URL: " + url);
 
-        List<Place> places = new ArrayList<>();
-        for (Map<String, Object> result : results) {
-            Place place = new Place();
-            place.setPlaceId((String) result.get("place_id"));
-            place.setName((String) result.get("name"));
-            place.setVicinity((String) result.get("vicinity"));
+        try {
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            System.out.println("Google Places API status: " + response.getStatusCode());
+            System.out.println("Google Places API response: " + response.getBody());
 
-            Map<String, Double> location = (Map<String, Double>) ((Map<String, Object>) result.get("geometry")).get("location");
-            place.setLatitude(location.get("lat"));
-            place.setLongitude(location.get("lng"));
+            // API status control
+            if (response.getBody() != null && response.getBody().containsKey("status")) {
+                String status = (String) response.getBody().get("status");
+                System.out.println("Google Places API result status: " + status);
 
-            if (result.get("types") != null) {
-                place.setTypes(String.join(",", (List<String>) result.get("types")));
-            }
-
-            if (result.get("rating") != null) {
-                place.setRating(((Number) result.get("rating")).doubleValue());
-            }
-
-            if (result.get("user_ratings_total") != null) {
-                place.setUserRatingsTotal(((Number) result.get("user_ratings_total")).intValue());
-            }
-
-            if (result.get("photos") != null) {
-                List<Map<String, Object>> photos = (List<Map<String, Object>>) result.get("photos");
-                if (!photos.isEmpty()) {
-                    place.setPhotoReference((String) photos.get(0).get("photo_reference"));
+                if (!"OK".equals(status) && !"ZERO_RESULTS".equals(status)) {
+                    System.out.println("Google Places API error: " + status);
+                    if (response.getBody().containsKey("error_message")) {
+                        System.out.println("Error message: " + response.getBody().get("error_message"));
+                    }
+                    // Return empty list on error
+                    return new ArrayList<>();
                 }
             }
 
-            // Save search parameters
-            place.setSearchLatitude(latitude);
-            place.setSearchLongitude(longitude);
-            place.setSearchRadius(radius);
+            // Process results
+            List<Map<String, Object>> results = (List<Map<String, Object>>) response.getBody().get("results");
 
-            // Timestamp
-            place.setCreatedAt(LocalDateTime.now());
-            place.setUpdatedAt(LocalDateTime.now());
+            if (results == null || results.isEmpty()) {
+                System.out.println("No places found for this location");
+                return new ArrayList<>();
+            }
 
-            places.add(place);
+            System.out.println("Found " + results.size() + " places");
+
+            List<Place> places = new ArrayList<>();
+            for (Map<String, Object> result : results) {
+                Place place = new Place();
+                place.setPlaceId((String) result.get("place_id"));
+                place.setName((String) result.get("name"));
+                place.setVicinity((String) result.get("vicinity"));
+
+                Map<String, Double> location = (Map<String, Double>) ((Map<String, Object>) result.get("geometry")).get("location");
+                place.setLatitude(location.get("lat"));
+                place.setLongitude(location.get("lng"));
+
+                if (result.get("types") != null) {
+                    place.setTypes(String.join(",", (List<String>) result.get("types")));
+                }
+
+                if (result.get("rating") != null) {
+                    place.setRating(((Number) result.get("rating")).doubleValue());
+                }
+
+                if (result.get("user_ratings_total") != null) {
+                    place.setUserRatingsTotal(((Number) result.get("user_ratings_total")).intValue());
+                }
+
+                if (result.get("photos") != null) {
+                    List<Map<String, Object>> photos = (List<Map<String, Object>>) result.get("photos");
+                    if (!photos.isEmpty()) {
+                        place.setPhotoReference((String) photos.get(0).get("photo_reference"));
+                    }
+                }
+
+                // Save search parameters
+                place.setSearchLatitude(latitude);
+                place.setSearchLongitude(longitude);
+                place.setSearchRadius(radius);
+
+                // Timestamp
+                place.setCreatedAt(LocalDateTime.now());
+                place.setUpdatedAt(LocalDateTime.now());
+
+                places.add(place);
+            }
+
+            // Save to database
+            if (!places.isEmpty()) {
+                placeRepository.saveAll(places);
+                System.out.println("Saved " + places.size() + " places to database");
+            }
+
+            return places;
+        } catch (Exception e) {
+            System.err.println("Error calling Google Places API: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-
-        // Save to database
-        placeRepository.saveAll(places);
-
-        return places;
     }
 }
