@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import axios from 'axios';
+import { Container, Navbar, Nav } from 'react-bootstrap';
+import Home from './pages/Home';
+import About from './pages/About';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Navbar } from 'react-bootstrap';
-import SearchForm from './components/SearchForm';
-import PlacesList from './components/PlacesList';
-import MapContainer from './components/MapContainer';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import './styles/custom.css';
 
 function App() {
     const [places, setPlaces] = useState([]);
@@ -31,23 +33,43 @@ function App() {
     };
 
     return (
-        <div>
-            <Navbar bg="dark" variant="dark">
-                <Container>
-                    <Navbar.Brand>NearPoint</Navbar.Brand>
-                </Container>
-            </Navbar>
+        <Router>
+            <div>
+                <Navbar bg="dark" variant="dark" expand="lg" className="mb-3">
+                    <Container>
+                        <Navbar.Brand as={Link} to="/">
+                            <i className="fas fa-map-marker-alt me-2"></i>
+                            NearPoint
+                        </Navbar.Brand>
+                        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+                            <Nav>
+                                <Nav.Link as={Link} to="/">Home</Nav.Link>
+                                <Nav.Link as={Link} to="/about">About</Nav.Link>
+                            </Nav>
+                        </Navbar.Collapse>
+                    </Container>
+                </Navbar>
 
-            <Container>
-                <SearchForm onSearch={handleSearch} />
+                <Routes>
+                    <Route path="/" element={
+                        <Home
+                            places={places}
+                            loading={loading}
+                            error={error}
+                            handleSearch={handleSearch}
+                        />
+                    } />
+                    <Route path="/about" element={<About />} />
+                </Routes>
 
-                {loading && <p className="text-center mt-4">Loading...</p>}
-                {error && <p className="text-center mt-4 text-danger">{error}</p>}
-
-                {places.length > 0 && <MapContainer places={places} />}
-                <PlacesList places={places} />
-            </Container>
-        </div>
+                <footer className="bg-light py-3 mt-5">
+                    <Container className="text-center text-muted">
+                        <small>&copy; {new Date().getFullYear()} NearPoint. All rights reserved.</small>
+                    </Container>
+                </footer>
+            </div>
+        </Router>
     );
 }
 
