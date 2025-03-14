@@ -14,11 +14,14 @@ function App() {
     const [error, setError] = useState('');
 
     const [searchHistory, setSearchHistory] = useState([]);
-
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 // Update handleSearch function
     const handleSearch = async (latitude, longitude, radius) => {
         setLoading(true);
         setError('');
+        const response = await axios.get(`${API_BASE_URL}/api/places/nearby`, {
+            params: { latitude, longitude, radius }
+        });
 
         // Add search to history
         const searchItem = {
