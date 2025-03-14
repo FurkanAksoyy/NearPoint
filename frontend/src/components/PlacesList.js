@@ -57,12 +57,23 @@ const PlacesList = ({ places }) => {
 
                                 {place.rating && (
                                     <div className="d-flex align-items-center mt-2">
-                    <span className="me-2">
-                      <i className="fas fa-star text-warning"></i> {place.rating}
-                    </span>
+                                        <span className="me-2">
+                                            <i className="fas fa-star text-warning"></i> {place.rating}
+                                        </span>
                                         <small className="text-muted">({place.userRatingsTotal} reviews)</small>
                                     </div>
                                 )}
+
+                                <div className="mt-3">
+                                    <a
+                                        href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}&query_place_id=${place.placeId}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-sm btn-outline-primary"
+                                    >
+                                        <i className="fas fa-map-marker-alt me-1"></i> View on Google Maps
+                                    </a>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
