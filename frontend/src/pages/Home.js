@@ -1,13 +1,21 @@
 import React from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Alert } from 'react-bootstrap';
 import SearchForm from '../components/SearchForm';
+import SearchHistory from '../components/SearchHistory';
 import PlacesList from '../components/PlacesList';
 import MapContainer from '../components/MapContainer';
 
-const Home = ({ places, loading, error, handleSearch }) => {
+const Home = ({ places, loading, error, searchHistory, handleSearch }) => {
     return (
         <Container>
             <SearchForm onSearch={handleSearch} />
+
+            {searchHistory && searchHistory.length > 0 && (
+                <SearchHistory
+                    history={searchHistory}
+                    onSelect={(lat, lng, radius) => handleSearch(lat, lng, radius)}
+                />
+            )}
 
             {loading && (
                 <div className="loader-container">
@@ -16,9 +24,9 @@ const Home = ({ places, loading, error, handleSearch }) => {
             )}
 
             {error && (
-                <div className="alert alert-danger mt-3">
+                <Alert variant="danger" className="mt-3">
                     <i className="fas fa-exclamation-circle me-2"></i> {error}
-                </div>
+                </Alert>
             )}
 
             {places.length > 0 && <MapContainer places={places} />}

@@ -13,9 +13,24 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const [searchHistory, setSearchHistory] = useState([]);
+
+// Update handleSearch function
     const handleSearch = async (latitude, longitude, radius) => {
         setLoading(true);
         setError('');
+
+        // Add search to history
+        const searchItem = {
+            id: Date.now(), // Unique ID
+            latitude,
+            longitude,
+            radius,
+            timestamp: new Date().toLocaleString()
+        };
+
+        // Update the history, newest one first
+        setSearchHistory(prev => [searchItem, ...prev.slice(0, 5)]); // Save last 5 searches
 
         try {
             const response = await axios.get(`http://localhost:8070/api/places/nearby`, {
@@ -57,6 +72,7 @@ function App() {
                             places={places}
                             loading={loading}
                             error={error}
+                            searchHistory={searchHistory}
                             handleSearch={handleSearch}
                         />
                     } />

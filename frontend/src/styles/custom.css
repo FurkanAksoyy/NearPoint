@@ -78,15 +78,15 @@ body {
     justify-content: center;
     align-items: center;
     height: 100px;
+    margin: 20px 0;
 }
 
 .loader {
-    width: 50px;
-    height: 50px;
-    border: 5px solid transparent;
-    border-top: 5px solid var(--primary-color);
-    border-right: 5px solid var(--accent-color);
+    border: 5px solid #f3f3f3;
     border-radius: 50%;
+    border-top: 5px solid #4a6fa5;
+    width: 40px;
+    height: 40px;
     animation: spin 1s linear infinite;
 }
 
