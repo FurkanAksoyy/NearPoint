@@ -15,28 +15,24 @@ function App() {
 
     const [searchHistory, setSearchHistory] = useState([]);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
-// Update handleSearch function
+
     const handleSearch = async (latitude, longitude, radius) => {
         setLoading(true);
         setError('');
-        const response = await axios.get(`${API_BASE_URL}/api/places/nearby`, {
-            params: { latitude, longitude, radius }
-        });
 
-        // Add search to history
+        // Arama geçmişine ekle
         const searchItem = {
-            id: Date.now(), // Unique ID
+            id: Date.now(),
             latitude,
             longitude,
             radius,
             timestamp: new Date().toLocaleString()
         };
-
-        // Update the history, newest one first
-        setSearchHistory(prev => [searchItem, ...prev.slice(0, 5)]); // Save last 5 searches
+        setSearchHistory(prev => [searchItem, ...prev.slice(0, 5)]);
 
         try {
-            const response = await axios.get(`http://localhost:8070/api/places/nearby`, {
+            // Sadece bir API çağrısı kullan
+            const response = await axios.get(`${API_BASE_URL}/api/places/nearby`, {
                 params: { latitude, longitude, radius }
             });
 
