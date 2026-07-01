@@ -16,6 +16,20 @@ export function websiteJsonLd() {
     };
 }
 
+/** BreadcrumbList for a landing page. items: [{name, url}] */
+export function breadcrumbJsonLd(items) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: items.map((it, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: it.name,
+            item: it.url ? SITE_URL + it.url : undefined,
+        })),
+    };
+}
+
 /** ItemList of places for a results/list page (mark up only what's visibly rendered). */
 export function itemListJsonLd(places, { name } = {}) {
     return {

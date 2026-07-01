@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Saved from './pages/Saved';
 import BestOf from './pages/BestOf';
+import NearPage from './pages/NearPage';
 import Logo from './components/Logo';
 import { useSettings } from './context/AppSettings';
 
@@ -196,6 +197,9 @@ function App() {
                 } />
                 <Route path="/best" element={
                     <BestOf coords={coords} favorites={favIds} onToggleFav={toggleFav} onCoords={setCoords} />
+                } />
+                <Route path="/near/:city/:category" element={
+                    <NearPage favorites={favIds} onToggleFav={toggleFav} />
                 } />
                 <Route path="/saved" element={
                     <Saved favorites={favorites} favIds={favIds} onToggleFav={toggleFav} />

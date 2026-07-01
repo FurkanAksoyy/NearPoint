@@ -75,6 +75,12 @@ export const translations = {
         'seo.saved_desc': 'Your saved places on NearPoint.',
         'seo.about_title': 'About — NearPoint',
         'seo.about_desc': 'What NearPoint is and how it works.',
+
+        'near.explore': 'Explore on the map',
+        'near.popular': 'Explore more',
+        'near.notfound': 'Page not found.',
+        'near.other_in': 'More in',
+        'near.same_elsewhere': 'in other cities',
     },
     tr: {
         'nav.discover': 'Keşfet',
@@ -152,5 +158,11 @@ export const translations = {
         'seo.saved_desc': 'NearPoint’te kaydettiğin yerler.',
         'seo.about_title': 'Hakkında — NearPoint',
         'seo.about_desc': 'NearPoint nedir ve nasıl çalışır.',
+
+        'near.explore': 'Haritada keşfet',
+        'near.popular': 'Daha fazla keşfet',
+        'near.notfound': 'Sayfa bulunamadı.',
+        'near.other_in': 'Şurada daha fazlası:',
+        'near.same_elsewhere': 'diğer şehirlerde',
     },
 };

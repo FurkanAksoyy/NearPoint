@@ -55,3 +55,15 @@ test('dark mode + Top Picks render', async ({ page }, testInfo) => {
     await expect(page.locator('.best-section').first()).toBeVisible({ timeout: 20000 });
     await page.screenshot({ path: testInfo.outputPath('best.png'), fullPage: false });
 });
+
+test('SEO near landing page renders with results + meta', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/near/istanbul/burgers');
+    await expect(page.locator('h1')).toContainText(/burgers.*Istanbul/i);
+    await expect(page).toHaveTitle(/Best burgers in Istanbul/i);
+    await expect(page.locator('.place-card').first()).toBeVisible({ timeout: 20000 });
+    // internal SEO links to related pages exist
+    await expect(page.locator('.near-chip').first()).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('near.png'), fullPage: false });
+});
