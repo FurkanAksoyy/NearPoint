@@ -5,8 +5,10 @@ import FilterControls from '../components/FilterControls';
 import PlacesList from '../components/PlacesList';
 import MapContainer from '../components/MapContainer';
 import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
+import Seo from '../components/Seo';
 import { distanceMeters } from '../utils/geo';
 import { CATEGORIES } from '../utils/places';
+import { websiteJsonLd, itemListJsonLd } from '../utils/jsonld';
 import { useSettings } from '../context/AppSettings';
 
 const Skeletons = () => (
@@ -29,7 +31,7 @@ const Home = ({
     favorites, onToggleFav, onSearch, onSearchArea, onUseLocation, locating,
     turnstileEnabled, hasTurnstileToken, onTurnstileToken, searchBarRef,
 }) => {
-    const { t } = useSettings();
+    const { t, lang } = useSettings();
     const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false });
     const [hoveredId, setHoveredId] = useState(null);
     const [selected, setSelected] = useState(null);
@@ -57,8 +59,25 @@ const Home = ({
 
     const openDetail = (place) => { setSelected(place); setShowDrawer(true); };
 
+    // SEO: dynamic "near you" titles leverage the brand + local-search intent
+    let seoTitle;
+    if (lastSearch.query) {
+        seoTitle = lang === 'tr'
+            ? `Yakınında “${lastSearch.query}” — NearPoint`
+            : `“${lastSearch.query}” near you — NearPoint`;
+    } else if (lastSearch.category && catTkey) {
+        const cl = t(catTkey);
+        seoTitle = lang === 'tr' ? `Yakındaki en iyi ${cl} — NearPoint` : `Best ${cl} near you — NearPoint`;
+    } else {
+        seoTitle = t('seo.default_title');
+    }
+    const jsonLd = list.length
+        ? [websiteJsonLd(), itemListJsonLd(list, { name: title })]
+        : websiteJsonLd();
+
     return (
         <>
+            <Seo title={seoTitle} description={t('seo.default_desc')} path="/" lang={lang} jsonLd={jsonLd} />
             <SearchBar
                 ref={searchBarRef}
                 onSearch={onSearch}

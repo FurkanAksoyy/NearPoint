@@ -1,3 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Avoid indexing noisy filter/sort permutations
+Disallow: /*?*sort=
+
+# Update the host to your production domain
+Sitemap: https://near-point.vercel.app/sitemap.xml

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Container, Card } from 'react-bootstrap';
+import Seo from '../components/Seo';
 import { useSettings } from '../context/AppSettings';
 
 const About = () => {
-    const { t } = useSettings();
+    const { t, lang } = useSettings();
     return (
         <Container className="py-4" style={{ maxWidth: 760 }}>
+            <Seo title={t('seo.about_title')} description={t('seo.about_desc')} path="/about" lang={lang} />
             <h2 className="mb-4">{t('about.title')}</h2>
 
             <Card className="mb-4">

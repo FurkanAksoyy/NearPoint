@@ -60,6 +60,13 @@ export const translations = {
 
         'a11y.theme': 'Toggle dark mode',
         'a11y.lang': 'Change language',
+
+        'seo.default_title': 'NearPoint — Discover places near you',
+        'seo.default_desc': 'Find restaurants, cafes, hotels and more near you — ratings, hours, price and directions on a live map.',
+        'seo.saved_title': 'Saved places — NearPoint',
+        'seo.saved_desc': 'Your saved places on NearPoint.',
+        'seo.about_title': 'About — NearPoint',
+        'seo.about_desc': 'What NearPoint is and how it works.',
     },
     tr: {
         'nav.discover': 'Keşfet',
@@ -122,5 +129,12 @@ export const translations = {
 
         'a11y.theme': 'Karanlık modu değiştir',
         'a11y.lang': 'Dili değiştir',
+
+        'seo.default_title': 'NearPoint — Yakınındaki yerleri keşfet',
+        'seo.default_desc': 'Yakınındaki restoran, kafe, otel ve daha fazlasını bul — puan, saat, fiyat ve yol tarifi canlı haritada.',
+        'seo.saved_title': 'Kayıtlı yerler — NearPoint',
+        'seo.saved_desc': 'NearPoint’te kaydettiğin yerler.',
+        'seo.about_title': 'Hakkında — NearPoint',
+        'seo.about_desc': 'NearPoint nedir ve nasıl çalışır.',
     },
 };

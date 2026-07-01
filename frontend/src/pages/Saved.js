@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { HeartBreak, MagnifyingGlass } from '@phosphor-icons/react';
 import PlacesList from '../components/PlacesList';
 import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
+import Seo from '../components/Seo';
 import { useSettings } from '../context/AppSettings';
 
 const Saved = ({ favorites, favIds, onToggleFav }) => {
-    const { t } = useSettings();
+    const { t, lang } = useSettings();
     const [selected, setSelected] = useState(null);
     const [show, setShow] = useState(false);
 
@@ -14,6 +15,7 @@ const Saved = ({ favorites, favIds, onToggleFav }) => {
 
     return (
         <div className="saved-page">
+            <Seo title={t('seo.saved_title')} description={t('seo.saved_desc')} path="/saved" lang={lang} />
             <div className="results-head" style={{ margin: '0 4px 16px' }}>
                 <h2>{t('saved.title')}</h2>
                 <span className="count">{favorites.length} {t('saved.count')}</span>
