@@ -3,3 +3,7 @@ build
 .env
 .git
 npm-debug.log
+e2e
+test-results
+playwright-report
+playwright.config.js

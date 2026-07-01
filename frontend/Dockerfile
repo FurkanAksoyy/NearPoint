@@ -2,6 +2,9 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
+# Playwright is a dev-only test tool — don't download browsers during image build
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
 # Build-time configuration (React embeds these at build time)
 ARG REACT_APP_API_BASE_URL=http://localhost:8070
 ARG REACT_APP_GOOGLE_MAPS_API_KEY=

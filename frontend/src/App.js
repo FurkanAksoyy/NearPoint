@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Sun, Moon, Sparkle } from '@phosphor-icons/react';
+import { Heart, Sun, Moon, Sparkle, Compass, Info } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import About from './pages/About';
 import Saved from './pages/Saved';
@@ -150,13 +150,19 @@ function App() {
                     <span>Near<span style={{ color: '#E8552B' }}>Point</span></span>
                 </NavLink>
                 <div className="np-nav-links">
-                    <NavLink to={`/${window.location.search}`} end>{t('nav.discover')}</NavLink>
-                    <NavLink to="/best"><Sparkle size={15} weight="fill" style={{ verticalAlign: '-2px' }} /> {t('nav.best')}</NavLink>
-                    <NavLink to="/saved">
-                        <Heart size={15} weight={favorites.length ? 'fill' : 'regular'} style={{ verticalAlign: '-2px', color: favorites.length ? '#E8552B' : undefined }} />
-                        {favorites.length ? ` ${t('nav.saved')} · ${favorites.length}` : ` ${t('nav.saved')}`}
+                    <NavLink to={`/${window.location.search}`} end title={t('nav.discover')}>
+                        <Compass size={17} weight="regular" /><span className="nav-label">{t('nav.discover')}</span>
                     </NavLink>
-                    <NavLink to="/about">{t('nav.about')}</NavLink>
+                    <NavLink to="/best" title={t('nav.best')}>
+                        <Sparkle size={16} weight="fill" /><span className="nav-label">{t('nav.best')}</span>
+                    </NavLink>
+                    <NavLink to="/saved" title={t('nav.saved')}>
+                        <Heart size={16} weight={favorites.length ? 'fill' : 'regular'} style={{ color: favorites.length ? '#E8552B' : undefined }} />
+                        <span className="nav-label">{favorites.length ? `${t('nav.saved')} · ${favorites.length}` : t('nav.saved')}</span>
+                    </NavLink>
+                    <NavLink to="/about" title={t('nav.about')}>
+                        <Info size={16} weight="regular" /><span className="nav-label">{t('nav.about')}</span>
+                    </NavLink>
                     <div className="np-controls">
                         <button className="np-lang" onClick={toggleLang} aria-label={t('a11y.lang')} title={t('a11y.lang')}>
                             {lang.toUpperCase()}

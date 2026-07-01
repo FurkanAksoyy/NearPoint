@@ -1,0 +1,57 @@
+const { test, expect } = require('@playwright/test');
+
+test('mobile: draggable bottom sheet over the map', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile');
+
+    await page.goto('/');
+    // Search bar renders
+    await expect(page.locator('.search-bar')).toBeVisible();
+    // Map fills the viewport on mobile
+    await expect(page.locator('.mobile-map')).toBeVisible();
+    // Bottom sheet is present (vaul)
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toBeVisible();
+
+    // Results load from the backend
+    await expect(page.locator('.place-card').first()).toBeVisible({ timeout: 20000 });
+    await page.waitForTimeout(1600); // let the sheet settle at its initial snap
+    await page.screenshot({ path: testInfo.outputPath('mobile-peek.png'), fullPage: false });
+
+    // Drag the handle upward to expand the sheet
+    const handle = page.locator('[data-vaul-handle]').first();
+    const box = await handle.boundingBox();
+    if (box) {
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(box.x + box.width / 2, 120, { steps: 12 });
+        await page.mouse.up();
+        await page.waitForTimeout(600);
+    }
+    await page.screenshot({ path: testInfo.outputPath('mobile-expanded.png'), fullPage: false });
+});
+
+test('desktop: split map + list, no bottom sheet', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    await expect(page.locator('.discover .results-pane')).toBeVisible();
+    await expect(page.locator('.discover .map-pane')).toBeVisible();
+    await expect(page.locator('.sheet')).toHaveCount(0);
+    await expect(page.locator('.place-card').first()).toBeVisible({ timeout: 20000 });
+    await page.screenshot({ path: testInfo.outputPath('desktop.png'), fullPage: false });
+});
+
+test('dark mode + Top Picks render', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    // Toggle dark mode via the navbar theme button (Moon/Sun)
+    await page.locator('.np-icon-btn').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.screenshot({ path: testInfo.outputPath('dark.png'), fullPage: false });
+
+    // Top Picks page
+    await page.goto('/best');
+    await expect(page.locator('.best-section').first()).toBeVisible({ timeout: 20000 });
+    await page.screenshot({ path: testInfo.outputPath('best.png'), fullPage: false });
+});
