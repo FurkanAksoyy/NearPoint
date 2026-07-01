@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Sun, Moon } from '@phosphor-icons/react';
+import { Heart, Sun, Moon, Sparkle } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import About from './pages/About';
 import Saved from './pages/Saved';
+import BestOf from './pages/BestOf';
 import Logo from './components/Logo';
 import { useSettings } from './context/AppSettings';
 
@@ -150,6 +151,7 @@ function App() {
                 </NavLink>
                 <div className="np-nav-links">
                     <NavLink to={`/${window.location.search}`} end>{t('nav.discover')}</NavLink>
+                    <NavLink to="/best"><Sparkle size={15} weight="fill" style={{ verticalAlign: '-2px' }} /> {t('nav.best')}</NavLink>
                     <NavLink to="/saved">
                         <Heart size={15} weight={favorites.length ? 'fill' : 'regular'} style={{ verticalAlign: '-2px', color: favorites.length ? '#E8552B' : undefined }} />
                         {favorites.length ? ` ${t('nav.saved')} · ${favorites.length}` : ` ${t('nav.saved')}`}
@@ -185,6 +187,9 @@ function App() {
                         onTurnstileToken={setTurnstileToken}
                         searchBarRef={searchBarRef}
                     />
+                } />
+                <Route path="/best" element={
+                    <BestOf coords={coords} favorites={favIds} onToggleFav={toggleFav} onCoords={setCoords} />
                 } />
                 <Route path="/saved" element={
                     <Saved favorites={favorites} favIds={favIds} onToggleFav={toggleFav} />

@@ -1,8 +1,16 @@
 export const translations = {
     en: {
         'nav.discover': 'Discover',
+        'nav.best': 'Top picks',
         'nav.saved': 'Saved',
         'nav.about': 'About',
+
+        'best.title': 'Top picks near you',
+        'best.subtitle': 'Highly-rated places around you, hand-picked by category.',
+        'best.near': 'Near me',
+        'best.empty': 'No standout places found here yet. Try “Near me”.',
+        'best.seo_title': 'Top picks near you — NearPoint',
+        'best.seo_desc': 'The best-rated burgers, pizza, coffee, restaurants and more near you — hand-picked on NearPoint.',
 
         'search.placeholder': 'Search “hamburger”, “coffee”, “museum”…',
         'search.near': 'Near me',
@@ -70,8 +78,16 @@ export const translations = {
     },
     tr: {
         'nav.discover': 'Keşfet',
+        'nav.best': 'Öne çıkanlar',
         'nav.saved': 'Kayıtlı',
         'nav.about': 'Hakkında',
+
+        'best.title': 'Yakınında öne çıkanlar',
+        'best.subtitle': 'Çevrendeki yüksek puanlı yerler, kategoriye göre seçildi.',
+        'best.near': 'Yakınımda',
+        'best.empty': 'Burada henüz öne çıkan yer bulunamadı. “Yakınımda”yı dene.',
+        'best.seo_title': 'Yakınında öne çıkanlar — NearPoint',
+        'best.seo_desc': 'Yakınındaki en iyi hamburgerciler, pizzacılar, kahveciler, restoranlar ve daha fazlası — NearPoint’te seçildi.',
 
         'search.placeholder': '“hamburger”, “kahve”, “müze” ara…',
         'search.near': 'Yakınımda',
