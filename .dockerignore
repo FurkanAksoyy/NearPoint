@@ -1,0 +1,9 @@
+target/
+frontend/
+*.md
+.git
+.gitignore
+.idea
+*.iml
+HELP.md
+.env

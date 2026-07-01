@@ -1,0 +1,12 @@
+# Automatic HTTPS via Let's Encrypt. DOMAIN comes from the .env file.
+{$DOMAIN} {
+	# Backend API
+	handle /api/* {
+		reverse_proxy backend:8070
+	}
+
+	# Frontend SPA (everything else)
+	handle {
+		reverse_proxy frontend:80
+	}
+}
