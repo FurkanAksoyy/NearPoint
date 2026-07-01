@@ -86,6 +86,26 @@ test('register + login: navbar reflects authenticated user', async ({ page }, te
     await page.screenshot({ path: testInfo.outputPath('auth.png'), fullPage: false });
 });
 
+test('PWA: installable manifest + active service worker', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    await expect(page.locator('link[rel="manifest"]')).toHaveCount(1);
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#E8552B');
+
+    const swActive = await page.evaluate(async () => {
+        if (!('serviceWorker' in navigator)) return false;
+        const reg = await navigator.serviceWorker.ready;
+        return !!(reg && reg.active);
+    });
+    expect(swActive).toBeTruthy();
+
+    const manifest = await (await page.request.get('/manifest.json')).json();
+    expect(manifest.name).toContain('NearPoint');
+    expect((await page.request.get('/icon-192.png')).status()).toBe(200);
+    expect((await page.request.get('/sw.js')).status()).toBe(200);
+});
+
 test('tours page: numbered walking route with a start button', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
 

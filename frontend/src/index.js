@@ -23,3 +23,10 @@ root.render(
 );
 
 reportWebVitals();
+
+// PWA: register the service worker for offline app shell + installability
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
