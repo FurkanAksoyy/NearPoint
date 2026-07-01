@@ -86,6 +86,16 @@ test('register + login: navbar reflects authenticated user', async ({ page }, te
     await page.screenshot({ path: testInfo.outputPath('auth.png'), fullPage: false });
 });
 
+test('place detail drawer loads rich details + reviews', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    await page.locator('.place-card').first().click();
+    await expect(page.locator('.detail-drawer')).toBeVisible();
+    await expect(page.locator('.review').first()).toBeVisible({ timeout: 15000 });
+    await page.screenshot({ path: testInfo.outputPath('detail.png'), fullPage: false });
+});
+
 test('PWA: installable manifest + active service worker', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
 

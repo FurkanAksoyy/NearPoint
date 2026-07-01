@@ -37,7 +37,7 @@ public class GooglePlacesClient {
     private static final String DETAILS_FIELD_MASK = String.join(",",
             "id", "displayName", "formattedAddress", "location", "rating", "userRatingCount",
             "priceLevel", "currentOpeningHours.openNow", "currentOpeningHours.weekdayDescriptions",
-            "nationalPhoneNumber", "websiteUri", "googleMapsUri", "editorialSummary", "photos");
+            "nationalPhoneNumber", "websiteUri", "googleMapsUri", "editorialSummary", "photos", "reviews");
 
     private final RestTemplate restTemplate;
     private final GooglePlacesConfig config;

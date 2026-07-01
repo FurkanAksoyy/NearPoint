@@ -3,7 +3,7 @@ import { Offcanvas } from 'react-bootstrap';
 import axios from 'axios';
 import {
     Star, Heart, Clock, MapPin, ArrowSquareOut, NavigationArrow,
-    Phone, Globe, CircleNotch,
+    Phone, Globe, CircleNotch, ChatCircle,
 } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
@@ -96,6 +96,29 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
                             <div className="detail-hours">
                                 <div className="detail-hours-title"><Clock size={15} /> {t('detail.hours')}</div>
                                 {details.weekdayDescriptions.map((d, i) => <div key={i} className="hour-row">{d}</div>)}
+                            </div>
+                        )}
+
+                        {details.reviews?.length > 0 && (
+                            <div className="detail-reviews">
+                                <div className="detail-hours-title"><ChatCircle size={15} weight="fill" /> {t('detail.reviews')}</div>
+                                {details.reviews.map((r, i) => (
+                                    <div className="review" key={i}>
+                                        <div className="review-head">
+                                            {r.authorPhotoUri
+                                                ? <img className="review-avatar" src={r.authorPhotoUri} alt="" referrerPolicy="no-referrer" />
+                                                : <div className="review-avatar placeholder">{(r.authorName || '?').charAt(0).toUpperCase()}</div>}
+                                            <div className="min-w-0">
+                                                <div className="review-author">{r.authorName}</div>
+                                                <div className="review-meta">
+                                                    {r.rating != null && <><Star size={11} weight="fill" className="star" /> {r.rating} · </>}
+                                                    {r.relativeTime}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {r.text && <p className="review-text">{r.text}</p>}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>

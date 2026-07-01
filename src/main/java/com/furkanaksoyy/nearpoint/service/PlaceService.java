@@ -3,6 +3,7 @@ package com.furkanaksoyy.nearpoint.service;
 import com.furkanaksoyy.nearpoint.client.GooglePlacesClient;
 import com.furkanaksoyy.nearpoint.dto.PlaceDetailResponse;
 import com.furkanaksoyy.nearpoint.dto.PlaceResponse;
+import com.furkanaksoyy.nearpoint.dto.ReviewDto;
 import com.furkanaksoyy.nearpoint.mapper.PlaceMapper;
 import com.furkanaksoyy.nearpoint.model.Place;
 import com.furkanaksoyy.nearpoint.repository.PlaceRepository;
@@ -83,6 +84,7 @@ public class PlaceService {
         Map<String, Object> hours = (Map<String, Object>) d.get("currentOpeningHours");
         Map<String, Object> summary = (Map<String, Object>) d.get("editorialSummary");
         List<Map<String, Object>> photos = (List<Map<String, Object>>) d.get("photos");
+        List<ReviewDto> reviews = parseReviews((List<Map<String, Object>>) d.get("reviews"));
 
         return new PlaceDetailResponse(
                 (String) d.get("id"),
@@ -99,8 +101,32 @@ public class PlaceService {
                 (String) d.get("googleMapsUri"),
                 summary != null ? (String) summary.get("text") : null,
                 hours != null ? (List<String>) hours.get("weekdayDescriptions") : null,
-                photos != null && !photos.isEmpty() ? (String) photos.get(0).get("name") : null
+                photos != null && !photos.isEmpty() ? (String) photos.get(0).get("name") : null,
+                reviews
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ReviewDto> parseReviews(List<Map<String, Object>> reviews) {
+        if (reviews == null) {
+            return List.of();
+        }
+        List<ReviewDto> result = new ArrayList<>();
+        for (Map<String, Object> r : reviews) {
+            if (result.size() >= 4) {
+                break;
+            }
+            Map<String, Object> text = (Map<String, Object>) r.get("text");
+            Map<String, Object> author = (Map<String, Object>) r.get("authorAttribution");
+            result.add(new ReviewDto(
+                    author != null ? (String) author.get("displayName") : null,
+                    author != null ? (String) author.get("photoUri") : null,
+                    r.get("rating") != null ? ((Number) r.get("rating")).doubleValue() : null,
+                    text != null ? (String) text.get("text") : null,
+                    (String) r.get("relativePublishTimeDescription")
+            ));
+        }
+        return result;
     }
 
     private String normalize(String value) {

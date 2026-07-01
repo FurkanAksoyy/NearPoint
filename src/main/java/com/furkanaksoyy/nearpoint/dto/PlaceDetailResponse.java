@@ -21,6 +21,7 @@ public record PlaceDetailResponse(
         String googleMapsUri,
         String editorialSummary,
         List<String> weekdayDescriptions,
-        String photoReference
+        String photoReference,
+        List<ReviewDto> reviews
 ) {
 }

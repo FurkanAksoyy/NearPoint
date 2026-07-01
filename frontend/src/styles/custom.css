@@ -510,6 +510,18 @@ h1, h2, h3, h4, h5, .fw-display {
 .detail-hours-title { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink); margin-bottom: 6px; font-size: 0.9rem; }
 .hour-row { font-size: 0.84rem; color: var(--body); padding: 2px 0 2px 23px; }
 
+/* Reviews */
+.detail-reviews { margin-top: 18px; }
+.review { padding: 12px 0; border-bottom: 1px solid var(--line-soft); }
+.review:last-child { border-bottom: none; }
+.review-head { display: flex; align-items: center; gap: 10px; }
+.review-avatar { width: 34px; height: 34px; border-radius: 999px; object-fit: cover; flex: 0 0 auto; }
+.review-avatar.placeholder { display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
+.review-author { font-weight: 600; color: var(--ink); font-size: 0.9rem; }
+.review-meta { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 2px; }
+.review-meta .star { color: var(--star); }
+.review-text { margin: 8px 0 0; font-size: 0.87rem; color: var(--body); line-height: 1.5; }
+
 /* ---------- Search this area ---------- */
 .search-area-btn {
     position: absolute;

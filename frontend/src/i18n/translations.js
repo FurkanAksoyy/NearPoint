@@ -55,6 +55,7 @@ export const translations = {
         'detail.maps': 'Google Maps',
         'detail.loading': 'Loading details…',
         'detail.hours': 'Opening hours',
+        'detail.reviews': 'Reviews',
 
         'saved.title': 'Saved places',
         'saved.count': 'saved',
@@ -161,6 +162,7 @@ export const translations = {
         'detail.maps': 'Google Haritalar',
         'detail.loading': 'Detaylar yükleniyor…',
         'detail.hours': 'Çalışma saatleri',
+        'detail.reviews': 'Yorumlar',
 
         'saved.title': 'Kayıtlı yerler',
         'saved.count': 'kayıtlı',
