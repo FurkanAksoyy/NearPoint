@@ -1,193 +1,109 @@
-import React, { useState, useCallback } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Circle } from '@react-google-maps/api';
-import { Container } from 'react-bootstrap';
+import React, { useRef, useState, useCallback } from 'react';
+import { GoogleMap, useJsApiLoader, OverlayViewF, OverlayView } from '@react-google-maps/api';
+import { Star, ArrowsClockwise } from '@phosphor-icons/react';
+import { distanceMeters } from '../utils/geo';
+import { useSettings } from '../context/AppSettings';
 
-const containerStyle = {
-    width: '100%',
-    height: '500px'
-};
+const containerStyle = { width: '100%', height: '100%' };
 
-const MapContainer = ({ places }) => {
+// Subtle desaturated map so Ember markers pop
+const MAP_STYLE = [
+    { elementType: 'geometry', stylers: [{ color: '#f8fafc' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#f8fafc' }] },
+    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+    { featureType: 'road.arterial', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cfe3ee' }] },
+    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#eef3ea' }] },
+];
+
+const MAP_STYLE_DARK = [
+    { elementType: 'geometry', stylers: [{ color: '#0f1626' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#8593ab' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#0b1220' }] },
+    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1b2740' }] },
+    { featureType: 'road.arterial', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1424' }] },
+    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#12203a' }] },
+];
+
+const MapContainer = ({ places, center, hoveredId, selectedId, onHover, onSelect, onSearchArea }) => {
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
-        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
     });
 
-    const [map, setMap] = useState(null);
-    const [selectedPlace, setSelectedPlace] = useState(null);
-    const [activeMarker, setActiveMarker] = useState(null);
+    const { t, theme } = useSettings();
+    const mapRef = useRef(null);
+    const [movedCenter, setMovedCenter] = useState(null);
 
-    const onLoad = useCallback(function callback(map) {
-        setMap(map);
-    }, []);
+    const onIdle = useCallback(() => {
+        if (!mapRef.current) return;
+        const c = mapRef.current.getCenter();
+        if (!c) return;
+        const moved = distanceMeters(center.lat, center.lng, c.lat(), c.lng());
+        setMovedCenter(moved != null && moved > 400 ? { lat: c.lat(), lng: c.lng() } : null);
+    }, [center]);
 
-    const onUnmount = useCallback(function callback() {
-        setMap(null);
-    }, []);
-
-    const handleMarkerClick = (place, marker) => {
-        setSelectedPlace(place);
-        setActiveMarker(marker);
-    };
-
-    const handleMapClick = () => {
-        setSelectedPlace(null);
-        setActiveMarker(null);
-    };
-
-    const getMarkerIcon = (types) => {
-        if (!types) return null;
-
-        const typesList = types.split(',');
-
-        if (typesList.includes('restaurant') || typesList.includes('food') || typesList.includes('cafe')) {
-            return {
-                url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-            };
-        }
-
-        if (typesList.includes('lodging') || typesList.includes('hotel')) {
-            return {
-                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-            };
-        }
-
-        if (typesList.includes('shopping_mall') || typesList.includes('store')) {
-            return {
-                url: "https://maps.google.com/mapfiles/ms/icons/purple-dot.png"
-            };
-        }
-
-        if (typesList.includes('park') || typesList.includes('natural_feature')) {
-            return {
-                url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-            };
-        }
-
-        if (typesList.includes('museum') || typesList.includes('art_gallery') || typesList.includes('tourist_attraction')) {
-            return {
-                url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
-            };
-        }
-
-        return null;
-    };
-
-    if (!places || places.length === 0) {
-        return (
-            <Container className="mt-4 mb-4" style={{ height: '400px', backgroundColor: '#f8f9fa' }}>
-                <p className="text-center pt-5">No places to display on map. Try a search first.</p>
-            </Container>
-        );
+    if (!isLoaded) {
+        return <div className="pane-state"><div className="ic" /> Loading map…</div>;
     }
 
-    // Arama merkezini ve yarıçapını belirle
-    const searchCenter = {
-        lat: places[0].searchLatitude || places[0].latitude,
-        lng: places[0].searchLongitude || places[0].longitude
-    };
+    return (
+        <>
+        {movedCenter && onSearchArea && (
+            <button className="search-area-btn" onClick={() => { onSearchArea(movedCenter); setMovedCenter(null); }}>
+                <ArrowsClockwise size={15} weight="bold" /> {t('map.search_area')}
+            </button>
+        )}
+        <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={14}
+            onLoad={(map) => { mapRef.current = map; }}
+            onIdle={onIdle}
+            options={{
+                styles: theme === 'dark' ? MAP_STYLE_DARK : MAP_STYLE,
+                disableDefaultUI: true,
+                zoomControl: true,
+                clickableIcons: false,
+                gestureHandling: 'greedy',
+            }}
+        >
 
-    const searchRadius = places[0].searchRadius || 1000; // Varsayılan 1000m
+            {/* Search center */}
+            <OverlayViewF position={center} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
+                <div className="map-marker center" title="Search center" />
+            </OverlayViewF>
 
-    // Harita merkezini arama merkezine ayarla
-    const center = searchCenter;
-
-    return isLoaded ? (
-        <Container className="mt-4 mb-4">
-            <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={center}
-                zoom={14}
-                onLoad={onLoad}
-                onUnmount={onUnmount}
-                onClick={handleMapClick}
-            >
-                {/* Arama merkezini gösteren özel marker */}
-                <Marker
-                    position={searchCenter}
-                    icon={{
-                        url: "https://maps.google.com/mapfiles/ms/icons/pink-dot.png"
-                    }}
-                    zIndex={1000} // Diğer markerların üzerinde görünmesi için
-                />
-
-                {/* Arama yarıçapını gösteren daire */}
-                <Circle
-                    center={searchCenter}
-                    radius={searchRadius}
-                    options={{
-                        strokeColor: '#FF0000',
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: '#FF0000',
-                        fillOpacity: 0.1,
-                    }}
-                />
-
-                {/* Bulunan yerler için markerlar */}
-                {places.map((place) => (
-                    <Marker
-                        key={place.id}
-                        position={{ lat: place.latitude, lng: place.longitude }}
-                        onClick={(e) => handleMarkerClick(place, e)}
-                        icon={getMarkerIcon(place.types)}
-                        animation={window.google && window.google.maps ? window.google.maps.Animation.DROP : null}
-                    />
-                ))}
-
-                {selectedPlace && activeMarker && (
-                    <InfoWindow
-                        position={{ lat: selectedPlace.latitude, lng: selectedPlace.longitude }}
-                        onCloseClick={handleMapClick}
+            {places.map((p) => (
+                p.latitude != null && p.longitude != null && (
+                    <OverlayViewF
+                        key={p.id}
+                        position={{ lat: p.latitude, lng: p.longitude }}
+                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                     >
-                        <div>
-                            <h5>{selectedPlace.name}</h5>
-                            {selectedPlace.vicinity && <p>{selectedPlace.vicinity}</p>}
-                            {selectedPlace.rating && (
-                                <p>
-                                    Rating: {selectedPlace.rating}
-                                    {selectedPlace.userRatingsTotal && ` (${selectedPlace.userRatingsTotal} reviews)`}
-                                </p>
+                        <div
+                            className={`map-marker ${hoveredId === p.id || selectedId === p.id ? 'active' : ''}`}
+                            onMouseEnter={() => onHover(p.id)}
+                            onMouseLeave={() => onHover(null)}
+                            onClick={() => onSelect(p)}
+                        >
+                            {p.rating != null ? (
+                                <><Star size={11} weight="fill" className="star" />{p.rating}</>
+                            ) : (
+                                p.name?.slice(0, 12)
                             )}
-                            {selectedPlace.types && (
-                                <p>
-                                    <small>
-                                        {selectedPlace.types.split(',').slice(0, 3).map(type =>
-                                            type.replace(/_/g, ' ')
-                                        ).join(', ')}
-                                    </small>
-                                </p>
-                            )}
-                            <a
-                                href={`https://www.google.com/maps/search/?api=1&query=${selectedPlace.latitude},${selectedPlace.longitude}&query_place_id=${selectedPlace.placeId}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn btn-sm btn-primary mt-2"
-                            >
-                                View on Google Maps
-                            </a>
                         </div>
-                    </InfoWindow>
-                )}
-            </GoogleMap>
-
-            {/* Marker renkleri için açıklama */}
-            <div className="mt-3 small">
-                <p className="mb-1">Marker colors:</p>
-                <ul className="list-inline">
-                    <li className="list-inline-item me-3"><span style={{color: "#FF0000"}}>●</span> Restaurants</li>
-                    <li className="list-inline-item me-3"><span style={{color: "#0000FF"}}>●</span> Hotels</li>
-                    <li className="list-inline-item me-3"><span style={{color: "#800080"}}>●</span> Shopping</li>
-                    <li className="list-inline-item me-3"><span style={{color: "#008000"}}>●</span> Parks</li>
-                    <li className="list-inline-item me-3"><span style={{color: "#FFFF00"}}>●</span> Museums</li>
-                    <li className="list-inline-item"><span style={{color: "#FF00FF"}}>●</span> Search Center</li>
-                </ul>
-            </div>
-        </Container>
-    ) : (
-        <Container className="mt-4 mb-4" style={{ height: '400px', backgroundColor: '#f8f9fa' }}>
-            <p className="text-center pt-5">Loading map...</p>
-        </Container>
+                    </OverlayViewF>
+                )
+            ))}
+        </GoogleMap>
+        </>
     );
 };
 

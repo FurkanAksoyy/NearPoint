@@ -1,89 +1,196 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Navbar, Nav } from 'react-bootstrap';
+import { Heart, Sun, Moon } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import About from './pages/About';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import './styles/custom.css';
+import Saved from './pages/Saved';
+import Logo from './components/Logo';
+import { useSettings } from './context/AppSettings';
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+const DEFAULT_COORDS = { lat: 41.0370, lng: 28.9851 }; // Istanbul
+const RADIUS = 2000;
+const FAV_KEY = 'np_favorites_v2';
+
+function loadFavorites() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+        return Array.isArray(raw) ? raw.filter((p) => p && p.placeId) : [];
+    } catch {
+        return [];
+    }
+}
+
+// Shareable URL state: ?q=&cat=&lat=&lng=
+function parseUrl() {
+    const p = new URLSearchParams(window.location.search);
+    const lat = parseFloat(p.get('lat'));
+    const lng = parseFloat(p.get('lng'));
+    return {
+        query: p.get('q') || '',
+        category: p.get('cat') || '',
+        coords: !isNaN(lat) && !isNaN(lng) ? { lat, lng } : null,
+    };
+}
 
 function App() {
-    const [places, setPlaces] = useState([]);
+    const initial = useRef(parseUrl()).current;
+    const [coords, setCoords] = useState(initial.coords || DEFAULT_COORDS);
+    const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [locating, setLocating] = useState(false);
+    const [lastSearch, setLastSearch] = useState({ query: initial.query, category: initial.category });
+    const [favorites, setFavorites] = useState(loadFavorites);
+    const [turnstileToken, setTurnstileToken] = useState('');
+    const searchBarRef = useRef(null);
 
-    const [searchHistory, setSearchHistory] = useState([]);
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+    const { t, theme, toggleTheme, lang, toggleLang } = useSettings();
+    const turnstileEnabled = !!process.env.REACT_APP_TURNSTILE_SITE_KEY;
+    const favIds = useMemo(() => new Set(favorites.map((f) => f.placeId)), [favorites]);
 
-    const handleSearch = async (latitude, longitude, radius) => {
+    const syncUrl = (query, category, c) => {
+        const sp = new URLSearchParams();
+        if (query) sp.set('q', query);
+        if (category) sp.set('cat', category);
+        sp.set('lat', c.lat.toFixed(5));
+        sp.set('lng', c.lng.toFixed(5));
+        window.history.replaceState(null, '', `${window.location.pathname}?${sp.toString()}`);
+    };
+
+    const runSearch = useCallback(async (query, category, coordsOverride) => {
+        const c = coordsOverride || coords;
+        setLastSearch({ query, category });
         setLoading(true);
         setError('');
-
-        // Arama geçmişine ekle
-        const searchItem = {
-            id: Date.now(),
-            latitude,
-            longitude,
-            radius,
-            timestamp: new Date().toLocaleString()
-        };
-        setSearchHistory(prev => [searchItem, ...prev.slice(0, 5)]);
-
         try {
-            // Sadece bir API çağrısı kullan
-            const response = await axios.get(`${API_BASE_URL}/api/places/nearby`, {
-                params: { latitude, longitude, radius }
+            const headers = {};
+            if (turnstileToken) headers['CF-Turnstile-Token'] = turnstileToken;
+            const res = await axios.get(`${API_BASE_URL}/api/places/nearby`, {
+                params: {
+                    latitude: c.lat,
+                    longitude: c.lng,
+                    radius: RADIUS,
+                    query: query || undefined,
+                    category: category || undefined,
+                },
+                headers,
             });
-
-            setPlaces(response.data);
+            setResults(res.data);
+            syncUrl(query, category, c);
         } catch (err) {
-            console.error('Error fetching places:', err);
-            setError('Error fetching places. Please try again.');
-            setPlaces([]);
+            if (err.response && err.response.status === 403) {
+                setError('error.bot');
+            } else {
+                setError('error.generic');
+            }
+            setResults([]);
         } finally {
             setLoading(false);
+            if (turnstileEnabled) {
+                searchBarRef.current?.resetTurnstile?.();
+                setTurnstileToken('');
+            }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [coords, turnstileToken, turnstileEnabled]);
+
+    // Initial search on load — wait for a Turnstile token if verification is on
+    const didInit = useRef(false);
+    useEffect(() => {
+        if (didInit.current) return;
+        if (turnstileEnabled && !turnstileToken) return;
+        didInit.current = true;
+        runSearch(initial.query, initial.category);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [turnstileEnabled, turnstileToken]);
+
+    const handleUseLocation = () => {
+        if (!navigator.geolocation) {
+            setError('error.geo_unsupported');
+            return;
+        }
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                setCoords(c);
+                setLocating(false);
+                runSearch(lastSearch.query, lastSearch.category, c);
+            },
+            () => {
+                setLocating(false);
+                setError('error.geo_denied');
+            },
+            { enableHighAccuracy: true, timeout: 8000 }
+        );
+    };
+
+    const handleSearchArea = (c) => {
+        setCoords(c);
+        runSearch(lastSearch.query, lastSearch.category, c);
+    };
+
+    const toggleFav = (place) => {
+        setFavorites((prev) => {
+            const exists = prev.some((p) => p.placeId === place.placeId);
+            const next = exists ? prev.filter((p) => p.placeId !== place.placeId) : [place, ...prev];
+            localStorage.setItem(FAV_KEY, JSON.stringify(next));
+            return next;
+        });
     };
 
     return (
         <Router>
-            <div>
-                <Navbar bg="dark" variant="dark" expand="lg" className="mb-3">
-                    <Container>
-                        <Navbar.Brand as={Link} to="/">
-                            <i className="fas fa-map-marker-alt me-2"></i>
-                            NearPoint
-                        </Navbar.Brand>
-                        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-                            <Nav>
-                                <Nav.Link as={Link} to="/">Home</Nav.Link>
-                                <Nav.Link as={Link} to="/about">About</Nav.Link>
-                            </Nav>
-                        </Navbar.Collapse>
-                    </Container>
-                </Navbar>
+            <nav className="np-nav">
+                <NavLink className="np-brand" to={`/${window.location.search}`}>
+                    <Logo size={24} />
+                    <span>Near<span style={{ color: '#E8552B' }}>Point</span></span>
+                </NavLink>
+                <div className="np-nav-links">
+                    <NavLink to={`/${window.location.search}`} end>{t('nav.discover')}</NavLink>
+                    <NavLink to="/saved">
+                        <Heart size={15} weight={favorites.length ? 'fill' : 'regular'} style={{ verticalAlign: '-2px', color: favorites.length ? '#E8552B' : undefined }} />
+                        {favorites.length ? ` ${t('nav.saved')} · ${favorites.length}` : ` ${t('nav.saved')}`}
+                    </NavLink>
+                    <NavLink to="/about">{t('nav.about')}</NavLink>
+                    <div className="np-controls">
+                        <button className="np-lang" onClick={toggleLang} aria-label={t('a11y.lang')} title={t('a11y.lang')}>
+                            {lang.toUpperCase()}
+                        </button>
+                        <button className="np-icon-btn" onClick={toggleTheme} aria-label={t('a11y.theme')} title={t('a11y.theme')}>
+                            {theme === 'dark' ? <Sun size={18} weight="fill" /> : <Moon size={18} weight="fill" />}
+                        </button>
+                    </div>
+                </div>
+            </nav>
 
-                <Routes>
-                    <Route path="/" element={
-                        <Home
-                            places={places}
-                            loading={loading}
-                            error={error}
-                            searchHistory={searchHistory}
-                            handleSearch={handleSearch}
-                        />
-                    } />
-                    <Route path="/about" element={<About />} />
-                </Routes>
-
-                <footer className="bg-light py-3 mt-5">
-                    <Container className="text-center text-muted">
-                        <small>&copy; {new Date().getFullYear()} NearPoint. All rights reserved.</small>
-                    </Container>
-                </footer>
-            </div>
+            <Routes>
+                <Route path="/" element={
+                    <Home
+                        results={results}
+                        loading={loading}
+                        error={error}
+                        coords={coords}
+                        lastSearch={lastSearch}
+                        favorites={favIds}
+                        onToggleFav={toggleFav}
+                        onSearch={(q, cat) => runSearch(q, cat)}
+                        onSearchArea={handleSearchArea}
+                        onUseLocation={handleUseLocation}
+                        locating={locating}
+                        turnstileEnabled={turnstileEnabled}
+                        hasTurnstileToken={!!turnstileToken}
+                        onTurnstileToken={setTurnstileToken}
+                        searchBarRef={searchBarRef}
+                    />
+                } />
+                <Route path="/saved" element={
+                    <Saved favorites={favorites} favIds={favIds} onToggleFav={toggleFav} />
+                } />
+                <Route path="/about" element={<About />} />
+            </Routes>
         </Router>
     );
 }

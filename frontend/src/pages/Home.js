@@ -1,83 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Alert } from 'react-bootstrap';
-import SearchForm from '../components/SearchForm';
-import SearchHistory from '../components/SearchHistory';
+import React, { useMemo, useState } from 'react';
+import { MagnifyingGlass, MapTrifold, ListBullets, Warning } from '@phosphor-icons/react';
+import SearchBar from '../components/SearchBar';
 import FilterControls from '../components/FilterControls';
 import PlacesList from '../components/PlacesList';
 import MapContainer from '../components/MapContainer';
+import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
+import { distanceMeters } from '../utils/geo';
+import { CATEGORIES } from '../utils/places';
+import { useSettings } from '../context/AppSettings';
 
-const Home = ({ places, loading, error, searchHistory, handleSearch }) => {
-    const [filteredPlaces, setFilteredPlaces] = useState([]);
-    const [filters, setFilters] = useState({ rating: 0, type: '' });
+const Skeletons = () => (
+    <div>
+        {Array.from({ length: 6 }).map((_, i) => (
+            <div className="skel-card" key={i}>
+                <div className="skel skel-thumb" />
+                <div style={{ flex: 1 }}>
+                    <div className="skel skel-line" style={{ width: '70%' }} />
+                    <div className="skel skel-line" style={{ width: '45%' }} />
+                    <div className="skel skel-line" style={{ width: '85%' }} />
+                </div>
+            </div>
+        ))}
+    </div>
+);
 
+const Home = ({
+    results, loading, error, coords, lastSearch,
+    favorites, onToggleFav, onSearch, onSearchArea, onUseLocation, locating,
+    turnstileEnabled, hasTurnstileToken, onTurnstileToken, searchBarRef,
+}) => {
+    const { t } = useSettings();
+    const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false });
+    const [hoveredId, setHoveredId] = useState(null);
+    const [selected, setSelected] = useState(null);
+    const [showDrawer, setShowDrawer] = useState(false);
+    const [showMap, setShowMap] = useState(false);
 
-    useEffect(() => {
-        let result = [...places];
+    const list = useMemo(() => {
+        let items = results.map((p) => ({
+            ...p,
+            _distance: distanceMeters(coords.lat, coords.lng, p.latitude, p.longitude),
+        }));
+        if (filters.openNowOnly) items = items.filter((p) => p.openNow === true);
+        if (filters.minRating > 0) items = items.filter((p) => (p.rating || 0) >= filters.minRating);
+        if (filters.sort === 'rating') items = [...items].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        else if (filters.sort === 'distance') items = [...items].sort((a, b) => (a._distance ?? 1e12) - (b._distance ?? 1e12));
+        return items;
+    }, [results, coords, filters]);
 
-        // Rating filtresi
-        if (filters.rating > 0) {
-            result = result.filter(place => place.rating >= filters.rating);
-        }
+    const catTkey = CATEGORIES.find((c) => c.key === lastSearch.category)?.tkey;
+    const title = lastSearch.query
+        ? `“${lastSearch.query}”`
+        : lastSearch.category && catTkey
+            ? t(catTkey)
+            : t('home.nearby');
 
-        // Type filter
-        if (filters.type) {
-            result = result.filter(place =>
-                place.types && place.types.toLowerCase().includes(filters.type.toLowerCase())
-            );
-        }
-
-        setFilteredPlaces(result);
-    }, [places, filters]);
-
-    const handleFilterChange = (newFilters) => {
-        setFilters(newFilters);
-    };
+    const openDetail = (place) => { setSelected(place); setShowDrawer(true); };
 
     return (
-        <Container>
-            <SearchForm onSearch={handleSearch} />
+        <>
+            <SearchBar
+                ref={searchBarRef}
+                onSearch={onSearch}
+                activeCategory={lastSearch.category}
+                onUseLocation={onUseLocation}
+                locating={locating}
+                loading={loading}
+                turnstileEnabled={turnstileEnabled}
+                hasToken={hasTurnstileToken}
+                onToken={onTurnstileToken}
+            />
 
-            {searchHistory && searchHistory.length > 0 && (
-                <SearchHistory
-                    history={searchHistory}
-                    onSelect={(lat, lng, radius) => handleSearch(lat, lng, radius)}
-                />
-            )}
+            <div className={`discover ${showMap ? 'show-map' : ''}`}>
+                <div className="results-pane">
+                    <div className="results-head">
+                        <h2 className="text-capitalize">{title}</h2>
+                        {!loading && <span className="count">{list.length} {t('home.places')}</span>}
+                    </div>
 
-            {loading && (
-                <div className="loader-container">
-                    <div className="loader"></div>
+                    {!loading && !error && results.length > 0 && (
+                        <FilterControls filters={filters} onChange={setFilters} />
+                    )}
+
+                    {loading && <Skeletons />}
+
+                    {error && <div className="pane-error"><Warning size={16} weight="fill" /> {t(error)}</div>}
+
+                    {!loading && !error && list.length > 0 && (
+                        <PlacesList
+                            places={list}
+                            favorites={favorites}
+                            onToggleFav={onToggleFav}
+                            onSelect={openDetail}
+                            hoveredId={hoveredId}
+                            onHover={setHoveredId}
+                        />
+                    )}
+
+                    {!loading && !error && results.length === 0 && (
+                        <div className="pane-state">
+                            <div className="ic"><MagnifyingGlass size={24} /></div>
+                            <p>{t('home.empty')}</p>
+                        </div>
+                    )}
+
+                    {!loading && !error && results.length > 0 && list.length === 0 && (
+                        <div className="pane-state">
+                            <div className="ic"><MagnifyingGlass size={24} /></div>
+                            <p>{t('home.no_filter')}</p>
+                        </div>
+                    )}
                 </div>
-            )}
 
-            {error && (
-                <Alert variant="danger" className="mt-3">
-                    <i className="fas fa-exclamation-circle me-2"></i> {error}
-                </Alert>
-            )}
-
-            {places.length > 0 && (
-                <FilterControls onFilterChange={handleFilterChange} />
-            )}
-
-            {filteredPlaces.length > 0 && <MapContainer places={filteredPlaces} />}
-
-            {filteredPlaces.length > 0 ? (
-                <PlacesList places={filteredPlaces} />
-            ) : (
-                places.length > 0 && (
-                    <Alert variant="info" className="mt-3">
-                        <i className="fas fa-info-circle me-2"></i> No places match your filters.
-                    </Alert>
-                )
-            )}
-
-            {!loading && places.length === 0 && !error && (
-                <div className="text-center mt-5 mb-5">
-                    <p className="text-muted">Enter coordinates and radius to find nearby places.</p>
+                <div className="map-pane">
+                    <MapContainer
+                        places={list}
+                        center={coords}
+                        hoveredId={hoveredId}
+                        selectedId={selected?.id}
+                        onHover={setHoveredId}
+                        onSelect={openDetail}
+                        onSearchArea={onSearchArea}
+                    />
                 </div>
-            )}
-        </Container>
+            </div>
+
+            <button className="map-fab" onClick={() => setShowMap(true)}><MapTrifold size={18} weight="fill" /> {t('map.map')}</button>
+            <button className="list-fab" onClick={() => setShowMap(false)}><ListBullets size={18} weight="bold" /> {t('map.list')}</button>
+
+            <PlaceDetailDrawer
+                place={selected}
+                show={showDrawer}
+                onHide={() => setShowDrawer(false)}
+                isFav={selected ? favorites.has(selected.placeId) : false}
+                onToggleFav={onToggleFav}
+            />
+        </>
     );
 };
 
