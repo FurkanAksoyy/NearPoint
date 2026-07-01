@@ -219,6 +219,36 @@ h1, h2, h3, h4, h5, .fw-display {
     transition: border-color .15s, box-shadow .15s;
 }
 .search-input::placeholder { color: var(--muted); }
+
+/* Autocomplete dropdown */
+.search-suggest {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-input);
+    box-shadow: var(--shadow-md);
+    max-height: 320px;
+    overflow-y: auto;
+}
+.suggest-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--ink);
+    font-size: 0.9rem;
+}
+.suggest-item:hover { background: var(--line-soft); }
+.suggest-item .suggest-ic { color: var(--muted); flex: 0 0 auto; }
 .search-input:focus {
     outline: none;
     border-color: var(--accent);

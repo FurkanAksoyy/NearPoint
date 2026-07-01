@@ -21,6 +21,9 @@ public class GooglePlacesConfig {
     @Value("${google.places.api.details-url-base}")
     private String detailsUrlBase;
 
+    @Value("${google.places.api.autocomplete-url}")
+    private String autocompleteUrl;
+
     @Bean
     public RestTemplate restTemplate() {
         // HTTP/1.1 via HttpURLConnection (avoids JDK-HttpClient HTTP/2 quirks with some servers),
@@ -45,5 +48,9 @@ public class GooglePlacesConfig {
 
     public String getDetailsUrlBase() {
         return detailsUrlBase;
+    }
+
+    public String getAutocompleteUrl() {
+        return autocompleteUrl;
     }
 }

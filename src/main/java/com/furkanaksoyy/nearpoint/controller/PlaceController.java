@@ -1,5 +1,6 @@
 package com.furkanaksoyy.nearpoint.controller;
 
+import com.furkanaksoyy.nearpoint.dto.AutocompleteSuggestion;
 import com.furkanaksoyy.nearpoint.dto.NearbySearchRequest;
 import com.furkanaksoyy.nearpoint.dto.PlaceDetailResponse;
 import com.furkanaksoyy.nearpoint.dto.PlaceResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -53,6 +55,15 @@ public class PlaceController {
                 request.query(), request.category(),
                 request.latitude(), request.longitude(), request.radius(), request.openNow());
         return ResponseEntity.ok(places);
+    }
+
+    @Operation(summary = "Search-as-you-type suggestions")
+    @GetMapping("/autocomplete")
+    public List<AutocompleteSuggestion> autocomplete(
+            @RequestParam String input,
+            @RequestParam Double latitude,
+            @RequestParam Double longitude) {
+        return placeService.autocomplete(input, latitude, longitude);
     }
 
     @Operation(summary = "Rich details for one place",

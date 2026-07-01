@@ -1,6 +1,7 @@
 package com.furkanaksoyy.nearpoint.service;
 
 import com.furkanaksoyy.nearpoint.client.GooglePlacesClient;
+import com.furkanaksoyy.nearpoint.dto.AutocompleteSuggestion;
 import com.furkanaksoyy.nearpoint.dto.PlaceDetailResponse;
 import com.furkanaksoyy.nearpoint.dto.PlaceResponse;
 import com.furkanaksoyy.nearpoint.dto.ReviewDto;
@@ -68,6 +69,36 @@ public class PlaceService {
     /** Paginated browse over everything stored so far. */
     public Page<PlaceResponse> getStoredPlaces(Pageable pageable) {
         return placeRepository.findAll(pageable).map(placeMapper::toResponse);
+    }
+
+    /** Search-as-you-type suggestions. Returns empty for very short input. */
+    @SuppressWarnings("unchecked")
+    public List<AutocompleteSuggestion> autocomplete(String input, Double latitude, Double longitude) {
+        if (input == null || input.trim().length() < 2) {
+            return List.of();
+        }
+        Map<String, Object> body = googlePlacesClient.autocomplete(input.trim(), latitude, longitude);
+        List<Map<String, Object>> suggestions = body == null ? null
+                : (List<Map<String, Object>>) body.get("suggestions");
+        if (suggestions == null) {
+            return List.of();
+        }
+        List<AutocompleteSuggestion> out = new ArrayList<>();
+        for (Map<String, Object> s : suggestions) {
+            Map<String, Object> pred = (Map<String, Object>) s.get("placePrediction");
+            if (pred == null) {
+                continue;
+            }
+            Map<String, Object> text = (Map<String, Object>) pred.get("text");
+            String label = text != null ? (String) text.get("text") : null;
+            if (label != null) {
+                out.add(new AutocompleteSuggestion(label, (String) pred.get("placeId")));
+            }
+            if (out.size() >= 6) {
+                break;
+            }
+        }
+        return out;
     }
 
     /** On-demand rich details for a single place (cached; billed only when a user opens a place). */

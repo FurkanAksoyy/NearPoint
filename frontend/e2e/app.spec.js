@@ -86,6 +86,18 @@ test('register + login: navbar reflects authenticated user', async ({ page }, te
     await page.screenshot({ path: testInfo.outputPath('auth.png'), fullPage: false });
 });
 
+test('autocomplete: suggestions appear as you type and are selectable', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    await page.locator('.place-card').first().waitFor({ timeout: 20000 }); // ensure coords loaded
+    await page.locator('.search-input').fill('hambur');
+    await expect(page.locator('.search-suggest .suggest-item').first()).toBeVisible({ timeout: 10000 });
+    await page.screenshot({ path: testInfo.outputPath('autocomplete.png'), fullPage: false });
+    await page.locator('.search-suggest .suggest-item').first().click();
+    await expect(page.locator('.place-card').first()).toBeVisible({ timeout: 15000 });
+});
+
 test('place detail drawer loads rich details + reviews', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
 

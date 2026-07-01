@@ -124,4 +124,29 @@ public class GooglePlacesClient {
         log.warn("Places Details unavailable ({}): {}", t.getClass().getSimpleName(), t.getMessage());
         return Map.of();
     }
+
+    @CircuitBreaker(name = "googlePlaces", fallbackMethod = "autocompleteFallback")
+    @Retry(name = "googlePlaces")
+    public Map<String, Object> autocomplete(String input, Double latitude, Double longitude) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("input", input);
+        body.put("locationBias", Map.of("circle", Map.of(
+                "center", Map.of("latitude", latitude, "longitude", longitude), "radius", 15000.0)));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-Goog-Api-Key", config.getApiKey());
+
+        @SuppressWarnings("unchecked")
+        ResponseEntity<Map<String, Object>> response =
+                (ResponseEntity<Map<String, Object>>) (ResponseEntity<?>) restTemplate.exchange(
+                        config.getAutocompleteUrl(), HttpMethod.POST, new HttpEntity<>(body, headers), Map.class);
+        return response.getBody();
+    }
+
+    @SuppressWarnings("unused")
+    private Map<String, Object> autocompleteFallback(String input, Double latitude, Double longitude, Throwable t) {
+        log.warn("Autocomplete unavailable ({}): {}", t.getClass().getSimpleName(), t.getMessage());
+        return Map.of("suggestions", List.of());
+    }
 }

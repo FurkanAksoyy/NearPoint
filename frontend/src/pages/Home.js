@@ -142,6 +142,7 @@ const Home = ({
             <SearchBar
                 ref={searchBarRef}
                 onSearch={onSearch}
+                coords={coords}
                 activeCategory={lastSearch.category}
                 onUseLocation={onUseLocation}
                 locating={locating}

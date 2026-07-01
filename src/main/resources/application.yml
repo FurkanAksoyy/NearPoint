@@ -34,6 +34,7 @@ google:
       text-search-url: ${GOOGLE_PLACES_TEXT_SEARCH_URL:https://places.googleapis.com/v1/places:searchText}
       nearby-search-url: ${GOOGLE_PLACES_NEARBY_SEARCH_URL:https://places.googleapis.com/v1/places:searchNearby}
       details-url-base: ${GOOGLE_PLACES_DETAILS_URL_BASE:https://places.googleapis.com/v1/places/}
+      autocomplete-url: ${GOOGLE_PLACES_AUTOCOMPLETE_URL:https://places.googleapis.com/v1/places:autocomplete}
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://near-point.vercel.app}
