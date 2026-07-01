@@ -85,3 +85,13 @@ test('register + login: navbar reflects authenticated user', async ({ page }, te
     await expect(page.locator('.np-user')).toBeVisible({ timeout: 10000 });
     await page.screenshot({ path: testInfo.outputPath('auth.png'), fullPage: false });
 });
+
+test('tours page: numbered walking route with a start button', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/tours');
+    await expect(page.locator('.tour-stop').first()).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('.tour-num').first()).toHaveText('1');
+    await expect(page.locator('.tour-start')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('tours.png'), fullPage: false });
+});

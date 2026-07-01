@@ -2,8 +2,18 @@ export const translations = {
     en: {
         'nav.discover': 'Discover',
         'nav.best': 'Top picks',
+        'nav.tours': 'Tours',
         'nav.saved': 'Saved',
         'nav.about': 'About',
+
+        'tours.title': 'Nearby history tour',
+        'tours.subtitle': 'A walking route through the top cultural and historical spots around you.',
+        'tours.start': 'Start the tour',
+        'tours.near': 'Near me',
+        'tours.stop': 'Stop',
+        'tours.empty': 'No notable sites found here. Try “Near me”.',
+        'tours.seo_title': 'Nearby history & culture tour — NearPoint',
+        'tours.seo_desc': 'A curated walking tour of the best historical sites, landmarks and museums near you, ordered into a route.',
 
         'best.title': 'Top picks near you',
         'best.subtitle': 'Highly-rated places around you, hand-picked by category.',
@@ -98,8 +108,18 @@ export const translations = {
     tr: {
         'nav.discover': 'Keşfet',
         'nav.best': 'Öne çıkanlar',
+        'nav.tours': 'Turlar',
         'nav.saved': 'Kayıtlı',
         'nav.about': 'Hakkında',
+
+        'tours.title': 'Yakında tarih turu',
+        'tours.subtitle': 'Çevrendeki en iyi kültürel ve tarihi noktalar arasında yürüyüş rotası.',
+        'tours.start': 'Tura başla',
+        'tours.near': 'Yakınımda',
+        'tours.stop': 'Durak',
+        'tours.empty': 'Burada öne çıkan bir yer bulunamadı. “Yakınımda”yı dene.',
+        'tours.seo_title': 'Yakında tarih & kültür turu — NearPoint',
+        'tours.seo_desc': 'Yakınındaki en iyi tarihi yerler, anıtlar ve müzelerden oluşan, rotaya dizilmiş küratörlü yürüyüş turu.',
 
         'best.title': 'Yakınında öne çıkanlar',
         'best.subtitle': 'Çevrendeki yüksek puanlı yerler, kategoriye göre seçildi.',

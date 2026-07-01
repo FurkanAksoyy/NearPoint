@@ -634,6 +634,31 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .fav-btn { padding: 12px; margin: -12px; } /* 44px hit area without visual bulk */
 
+/* ---------- Tours page ---------- */
+.tours-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+.tour-start { margin: 4px 0 24px; }
+.tour-list { list-style: none; margin: 0; padding: 0; position: relative; }
+.tour-list::before {
+    content: ''; position: absolute; left: 34px; top: 24px; bottom: 24px;
+    width: 2px; background: var(--line); z-index: 0;
+}
+.tour-stop {
+    display: flex; align-items: center; gap: 12px; position: relative; z-index: 1;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card);
+    padding: 10px; margin-bottom: 12px; cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, transform .05s;
+}
+.tour-stop:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.tour-num {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 999px;
+    background: var(--accent-strong); color: #fff; font-weight: 700; font-size: 0.9rem;
+    display: grid; place-items: center; border: 3px solid var(--surface);
+}
+.tour-thumb { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; background: var(--line-soft); flex: 0 0 auto; }
+.tour-thumb.placeholder { display: grid; place-items: center; color: var(--muted); }
+.tour-body { min-width: 0; }
+.tour-name { font-weight: 600; color: var(--ink); font-size: 0.98rem; }
+
 /* ---------- Near / SEO landing page ---------- */
 .near-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
 .near-crumbs { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; flex-wrap: wrap; }

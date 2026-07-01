@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut } from '@phosphor-icons/react';
+import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import About from './pages/About';
 import Saved from './pages/Saved';
 import BestOf from './pages/BestOf';
+import ToursPage from './pages/ToursPage';
 import NearPage from './pages/NearPage';
 import Logo from './components/Logo';
 import AuthModal from './components/AuthModal';
@@ -190,6 +191,9 @@ function App() {
                     <NavLink to="/best" title={t('nav.best')}>
                         <Sparkle size={16} weight="fill" /><span className="nav-label">{t('nav.best')}</span>
                     </NavLink>
+                    <NavLink to="/tours" title={t('nav.tours')}>
+                        <Path size={16} weight="fill" /><span className="nav-label">{t('nav.tours')}</span>
+                    </NavLink>
                     <NavLink to="/saved" title={t('nav.saved')}>
                         <Heart size={16} weight={favorites.length ? 'fill' : 'regular'} style={{ color: favorites.length ? '#E8552B' : undefined }} />
                         <span className="nav-label">{favorites.length ? `${t('nav.saved')} · ${favorites.length}` : t('nav.saved')}</span>
@@ -244,6 +248,9 @@ function App() {
                 } />
                 <Route path="/best" element={
                     <BestOf coords={coords} favorites={favIds} onToggleFav={toggleFav} onCoords={setCoords} />
+                } />
+                <Route path="/tours" element={
+                    <ToursPage coords={coords} favorites={favIds} onToggleFav={toggleFav} onCoords={setCoords} />
                 } />
                 <Route path="/near/:city/:category" element={
                     <NearPage favorites={favIds} onToggleFav={toggleFav} />
