@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Sun, Moon, Sparkle, Compass, Info } from '@phosphor-icons/react';
+import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import About from './pages/About';
 import Saved from './pages/Saved';
 import BestOf from './pages/BestOf';
 import NearPage from './pages/NearPage';
 import Logo from './components/Logo';
+import AuthModal from './components/AuthModal';
 import { useSettings } from './context/AppSettings';
+import { useAuth } from './context/Auth';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 const DEFAULT_COORDS = { lat: 41.0370, lng: 28.9851 }; // Istanbul
@@ -49,6 +51,8 @@ function App() {
     const searchBarRef = useRef(null);
 
     const { t, theme, toggleTheme, lang, toggleLang } = useSettings();
+    const { isAuthed, user, logout } = useAuth();
+    const [authOpen, setAuthOpen] = useState(false);
     const turnstileEnabled = !!process.env.REACT_APP_TURNSTILE_SITE_KEY;
     const favIds = useMemo(() => new Set(favorites.map((f) => f.placeId)), [favorites]);
 
@@ -134,11 +138,40 @@ function App() {
         runSearch(lastSearch.query, lastSearch.category, c);
     };
 
+    // Sync favorites with the server on login (merge guest favorites up), revert to local on logout
+    useEffect(() => {
+        let cancelled = false;
+        async function sync() {
+            if (isAuthed) {
+                try {
+                    const { data: serverFavs } = await axios.get(`${API_BASE_URL}/api/me/favorites`);
+                    const serverIds = new Set(serverFavs.map((f) => f.placeId));
+                    const localOnly = loadFavorites().filter((f) => !serverIds.has(f.placeId));
+                    for (const f of localOnly) {
+                        try { await axios.post(`${API_BASE_URL}/api/me/favorites`, f); } catch { /* ignore */ }
+                    }
+                    if (cancelled) return;
+                    const merged = [...serverFavs, ...localOnly];
+                    setFavorites(merged);
+                    localStorage.setItem(FAV_KEY, JSON.stringify(merged));
+                } catch { /* stay with local */ }
+            } else {
+                setFavorites(loadFavorites());
+            }
+        }
+        sync();
+        return () => { cancelled = true; };
+    }, [isAuthed]);
+
     const toggleFav = (place) => {
         setFavorites((prev) => {
             const exists = prev.some((p) => p.placeId === place.placeId);
             const next = exists ? prev.filter((p) => p.placeId !== place.placeId) : [place, ...prev];
             localStorage.setItem(FAV_KEY, JSON.stringify(next));
+            if (isAuthed) {
+                if (exists) axios.delete(`${API_BASE_URL}/api/me/favorites/${encodeURIComponent(place.placeId)}`).catch(() => {});
+                else axios.post(`${API_BASE_URL}/api/me/favorites`, place).catch(() => {});
+            }
             return next;
         });
     };
@@ -165,6 +198,20 @@ function App() {
                         <Info size={16} weight="regular" /><span className="nav-label">{t('nav.about')}</span>
                     </NavLink>
                     <div className="np-controls">
+                        {isAuthed ? (
+                            <>
+                                <span className="np-user" title={user.email}>
+                                    <UserCircle size={18} weight="fill" /><span className="nav-label">{user.displayName}</span>
+                                </span>
+                                <button className="np-icon-btn" onClick={logout} title={t('auth.logout')} aria-label={t('auth.logout')}>
+                                    <SignOut size={17} />
+                                </button>
+                            </>
+                        ) : (
+                            <button className="np-login" onClick={() => setAuthOpen(true)}>
+                                <UserCircle size={17} weight="fill" /><span className="nav-label">{t('auth.login')}</span>
+                            </button>
+                        )}
                         <button className="np-lang" onClick={toggleLang} aria-label={t('a11y.lang')} title={t('a11y.lang')}>
                             {lang.toUpperCase()}
                         </button>
@@ -206,6 +253,8 @@ function App() {
                 } />
                 <Route path="/about" element={<About />} />
             </Routes>
+
+            <AuthModal show={authOpen} onHide={() => setAuthOpen(false)} />
         </Router>
     );
 }

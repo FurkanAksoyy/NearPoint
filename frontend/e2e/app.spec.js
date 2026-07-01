@@ -67,3 +67,21 @@ test('SEO near landing page renders with results + meta', async ({ page }, testI
     await expect(page.locator('.near-chip').first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('near.png'), fullPage: false });
 });
+
+test('register + login: navbar reflects authenticated user', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    await page.locator('.np-login').click();
+    await expect(page.locator('.auth-modal')).toBeVisible();
+    await page.locator('.auth-switch').click(); // switch to register
+
+    const email = `pw_${Date.now()}@nearpoint.app`;
+    await page.fill('.auth-modal input[type=email]', email);
+    await page.fill('.auth-modal input[type=password]', 'secret12345');
+    await page.locator('.auth-modal button[type=submit]').click();
+
+    // modal closes and navbar shows the signed-in user + logout
+    await expect(page.locator('.np-user')).toBeVisible({ timeout: 10000 });
+    await page.screenshot({ path: testInfo.outputPath('auth.png'), fullPage: false });
+});

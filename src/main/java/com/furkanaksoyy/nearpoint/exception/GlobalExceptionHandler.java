@@ -57,6 +57,20 @@ public class GlobalExceptionHandler {
         return validationProblem(errors);
     }
 
+    @ExceptionHandler(EmailAlreadyUsedException.class)
+    public ProblemDetail handleEmailUsed(EmailAlreadyUsedException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setTitle("Email already in use");
+        return pd;
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleBadCredentials(InvalidCredentialsException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        pd.setTitle("Authentication failed");
+        return pd;
+    }
+
     @ExceptionHandler(UpstreamUnavailableException.class)
     public ProblemDetail handleUpstream(UpstreamUnavailableException ex) {
         log.warn("Upstream unavailable: {}", ex.getMessage());

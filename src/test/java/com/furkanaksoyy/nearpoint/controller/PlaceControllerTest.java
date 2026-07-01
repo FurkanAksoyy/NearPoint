@@ -2,6 +2,7 @@ package com.furkanaksoyy.nearpoint.controller;
 
 import com.furkanaksoyy.nearpoint.config.SecurityConfig;
 import com.furkanaksoyy.nearpoint.config.WebConfig;
+import com.furkanaksoyy.nearpoint.security.JwtService;
 import com.furkanaksoyy.nearpoint.service.PlaceService;
 import com.furkanaksoyy.nearpoint.service.TurnstileService;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ class PlaceControllerTest {
     private PlaceService placeService;
     @MockitoBean
     private TurnstileService turnstileService;
+    @MockitoBean
+    private JwtService jwtService; // required by SecurityConfig
 
     @Test
     void validRequestReturnsOk() throws Exception {

@@ -44,6 +44,11 @@ turnstile:
 api:
   key: ${API_KEY:}                        # blank -> API-key auth disabled (public demo)
 
+# JWT auth for user accounts (set a strong JWT_SECRET in production, >= 32 chars)
+jwt:
+  secret: ${JWT_SECRET:nearpoint-dev-secret-change-me-please-32chars-minimum-0123456789}
+  expiration-days: ${JWT_EXPIRATION_DAYS:7}
+
 # --- Observability ---
 management:
   endpoints:
