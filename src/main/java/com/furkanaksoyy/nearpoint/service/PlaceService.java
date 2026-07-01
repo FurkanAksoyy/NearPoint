@@ -1,13 +1,17 @@
 package com.furkanaksoyy.nearpoint.service;
 
-import com.furkanaksoyy.nearpoint.config.GooglePlacesConfig;
+import com.furkanaksoyy.nearpoint.client.GooglePlacesClient;
+import com.furkanaksoyy.nearpoint.dto.PlaceDetailResponse;
+import com.furkanaksoyy.nearpoint.dto.PlaceResponse;
+import com.furkanaksoyy.nearpoint.mapper.PlaceMapper;
 import com.furkanaksoyy.nearpoint.model.Place;
 import com.furkanaksoyy.nearpoint.repository.PlaceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,119 +21,158 @@ import java.util.Map;
 @Service
 public class PlaceService {
 
-    private final PlaceRepository placeRepository;
-    private final RestTemplate restTemplate;
-    private final GooglePlacesConfig googlePlacesConfig;
-    private final String PLACES_API_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
+    private static final Logger log = LoggerFactory.getLogger(PlaceService.class);
 
-    @Autowired
-    public PlaceService(PlaceRepository placeRepository, RestTemplate restTemplate, GooglePlacesConfig googlePlacesConfig) {
+    private final PlaceRepository placeRepository;
+    private final GooglePlacesClient googlePlacesClient;
+    private final PlaceMapper placeMapper;
+
+    public PlaceService(PlaceRepository placeRepository,
+                        GooglePlacesClient googlePlacesClient,
+                        PlaceMapper placeMapper) {
         this.placeRepository = placeRepository;
-        this.restTemplate = restTemplate;
-        this.googlePlacesConfig = googlePlacesConfig;
+        this.googlePlacesClient = googlePlacesClient;
+        this.placeMapper = placeMapper;
     }
 
-    public List<Place> getNearbyPlaces(Double latitude, Double longitude, Integer radius) {
-        // First check if there is a record in the database for the same query
-        List<Place> existingPlaces = placeRepository.findBySearchParameters(latitude, longitude, radius);
+    /**
+     * Search places by optional keyword/category near a coordinate.
+     * Two-level cache: Caffeine (TTL) in front of the durable Postgres cache, keyed by the
+     * full search (query + category + location + radius). Empty results are not cached.
+     */
+    @Cacheable(cacheNames = "nearbyPlaces",
+            key = "T(java.util.Objects).hash(#query, #category, #latitude, #longitude, #radius)",
+            unless = "#result == null || #result.isEmpty()")
+    public List<PlaceResponse> search(String query, String category,
+                                      Double latitude, Double longitude, Integer radius, Boolean openNow) {
+        String q = normalize(query);
+        String cat = normalize(category);
 
-        if (!existingPlaces.isEmpty()) {
-            System.out.println("Cached results found, returning from database");
-            return existingPlaces;
+        List<Place> existing = placeRepository.findBySearchParameters(latitude, longitude, radius, q, cat);
+        if (!existing.isEmpty()) {
+            log.debug("DB cache hit for q='{}' cat='{}' ({}, {}, {}) -> {}", q, cat, latitude, longitude, radius, existing.size());
+            return placeMapper.toResponseList(existing);
         }
 
-        // If not in database, pull from Google Places API
-        String url = UriComponentsBuilder.fromHttpUrl(PLACES_API_URL)
-                .queryParam("location", latitude + "," + longitude)
-                .queryParam("radius", radius)
-                .queryParam("key", googlePlacesConfig.getApiKey())
-                .toUriString();
+        Map<String, Object> body = googlePlacesClient.search(query, category, latitude, longitude, radius, openNow);
+        List<Place> places = parsePlaces(body, q, cat, latitude, longitude, radius);
 
-        System.out.println("Calling Google Places API with URL: " + url);
+        if (!places.isEmpty()) {
+            placeRepository.saveAll(places);
+            log.info("Saved {} places for q='{}' cat='{}' ({}, {}, {})", places.size(), q, cat, latitude, longitude, radius);
+        }
+        return placeMapper.toResponseList(places);
+    }
 
-        try {
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            System.out.println("Google Places API status: " + response.getStatusCode());
-            System.out.println("Google Places API response: " + response.getBody());
+    /** Paginated browse over everything stored so far. */
+    public Page<PlaceResponse> getStoredPlaces(Pageable pageable) {
+        return placeRepository.findAll(pageable).map(placeMapper::toResponse);
+    }
 
-            // API status control
-            if (response.getBody() != null && response.getBody().containsKey("status")) {
-                String status = (String) response.getBody().get("status");
-                System.out.println("Google Places API result status: " + status);
+    /** On-demand rich details for a single place (cached; billed only when a user opens a place). */
+    @Cacheable(cacheNames = "placeDetails", key = "#placeId", unless = "#result == null")
+    @SuppressWarnings("unchecked")
+    public PlaceDetailResponse getDetails(String placeId) {
+        Map<String, Object> d = googlePlacesClient.getDetails(placeId);
+        if (d == null || d.get("id") == null) {
+            return null;
+        }
 
-                if (!"OK".equals(status) && !"ZERO_RESULTS".equals(status)) {
-                    System.out.println("Google Places API error: " + status);
-                    if (response.getBody().containsKey("error_message")) {
-                        System.out.println("Error message: " + response.getBody().get("error_message"));
-                    }
-                    // Return empty list on error
-                    return new ArrayList<>();
-                }
-            }
+        Map<String, Object> displayName = (Map<String, Object>) d.get("displayName");
+        Map<String, Object> location = (Map<String, Object>) d.get("location");
+        Map<String, Object> hours = (Map<String, Object>) d.get("currentOpeningHours");
+        Map<String, Object> summary = (Map<String, Object>) d.get("editorialSummary");
+        List<Map<String, Object>> photos = (List<Map<String, Object>>) d.get("photos");
 
-            // Process results
-            List<Map<String, Object>> results = (List<Map<String, Object>>) response.getBody().get("results");
+        return new PlaceDetailResponse(
+                (String) d.get("id"),
+                displayName != null ? (String) displayName.get("text") : null,
+                (String) d.get("formattedAddress"),
+                location != null ? asDouble(location.get("latitude")) : null,
+                location != null ? asDouble(location.get("longitude")) : null,
+                d.get("rating") != null ? ((Number) d.get("rating")).doubleValue() : null,
+                d.get("userRatingCount") != null ? ((Number) d.get("userRatingCount")).intValue() : null,
+                d.get("priceLevel") != null ? d.get("priceLevel").toString() : null,
+                hours != null ? (Boolean) hours.get("openNow") : null,
+                (String) d.get("nationalPhoneNumber"),
+                (String) d.get("websiteUri"),
+                (String) d.get("googleMapsUri"),
+                summary != null ? (String) summary.get("text") : null,
+                hours != null ? (List<String>) hours.get("weekdayDescriptions") : null,
+                photos != null && !photos.isEmpty() ? (String) photos.get(0).get("name") : null
+        );
+    }
 
-            if (results == null || results.isEmpty()) {
-                System.out.println("No places found for this location");
-                return new ArrayList<>();
-            }
+    private String normalize(String value) {
+        return value == null ? "" : value.trim();
+    }
 
-            System.out.println("Found " + results.size() + " places");
-
-            List<Place> places = new ArrayList<>();
-            for (Map<String, Object> result : results) {
-                Place place = new Place();
-                place.setPlaceId((String) result.get("place_id"));
-                place.setName((String) result.get("name"));
-                place.setVicinity((String) result.get("vicinity"));
-
-                Map<String, Double> location = (Map<String, Double>) ((Map<String, Object>) result.get("geometry")).get("location");
-                place.setLatitude(location.get("lat"));
-                place.setLongitude(location.get("lng"));
-
-                if (result.get("types") != null) {
-                    place.setTypes(String.join(",", (List<String>) result.get("types")));
-                }
-
-                if (result.get("rating") != null) {
-                    place.setRating(((Number) result.get("rating")).doubleValue());
-                }
-
-                if (result.get("user_ratings_total") != null) {
-                    place.setUserRatingsTotal(((Number) result.get("user_ratings_total")).intValue());
-                }
-
-                if (result.get("photos") != null) {
-                    List<Map<String, Object>> photos = (List<Map<String, Object>>) result.get("photos");
-                    if (!photos.isEmpty()) {
-                        place.setPhotoReference((String) photos.get(0).get("photo_reference"));
-                    }
-                }
-
-                // Save search parameters
-                place.setSearchLatitude(latitude);
-                place.setSearchLongitude(longitude);
-                place.setSearchRadius(radius);
-
-                // Timestamp
-                place.setCreatedAt(LocalDateTime.now());
-                place.setUpdatedAt(LocalDateTime.now());
-
-                places.add(place);
-            }
-
-            // Save to database
-            if (!places.isEmpty()) {
-                placeRepository.saveAll(places);
-                System.out.println("Saved " + places.size() + " places to database");
-            }
-
+    @SuppressWarnings("unchecked")
+    private List<Place> parsePlaces(Map<String, Object> body, String query, String category,
+                                    Double latitude, Double longitude, Integer radius) {
+        List<Place> places = new ArrayList<>();
+        if (body == null) {
             return places;
-        } catch (Exception e) {
-            System.err.println("Error calling Google Places API: " + e.getMessage());
-            e.printStackTrace();
-            return new ArrayList<>();
         }
+        List<Map<String, Object>> results = (List<Map<String, Object>>) body.get("places");
+        if (results == null || results.isEmpty()) {
+            return places;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        for (Map<String, Object> result : results) {
+            Place place = new Place();
+            place.setPlaceId((String) result.get("id"));
+
+            Map<String, Object> displayName = (Map<String, Object>) result.get("displayName");
+            if (displayName != null) {
+                place.setName((String) displayName.get("text"));
+            }
+            place.setVicinity((String) result.get("formattedAddress"));
+
+            Map<String, Object> location = (Map<String, Object>) result.get("location");
+            if (location != null) {
+                place.setLatitude(asDouble(location.get("latitude")));
+                place.setLongitude(asDouble(location.get("longitude")));
+            }
+
+            if (result.get("types") != null) {
+                place.setTypes(String.join(",", (List<String>) result.get("types")));
+            }
+            if (result.get("rating") != null) {
+                place.setRating(((Number) result.get("rating")).doubleValue());
+            }
+            if (result.get("userRatingCount") != null) {
+                place.setUserRatingsTotal(((Number) result.get("userRatingCount")).intValue());
+            }
+            if (result.get("priceLevel") != null) {
+                place.setPriceLevel(result.get("priceLevel").toString());
+            }
+
+            Map<String, Object> hours = (Map<String, Object>) result.get("currentOpeningHours");
+            if (hours != null && hours.get("openNow") != null) {
+                place.setOpenNow((Boolean) hours.get("openNow"));
+            }
+
+            List<Map<String, Object>> photos = (List<Map<String, Object>>) result.get("photos");
+            if (photos != null && !photos.isEmpty()) {
+                place.setPhotoReference((String) photos.get(0).get("name"));
+            }
+
+            place.setSearchLatitude(latitude);
+            place.setSearchLongitude(longitude);
+            place.setSearchRadius(radius);
+            place.setSearchQuery(query);
+            place.setSearchCategory(category);
+            place.setCreatedAt(now);
+            place.setUpdatedAt(now);
+
+            places.add(place);
+        }
+        return places;
+    }
+
+    private Double asDouble(Object value) {
+        return value == null ? null : ((Number) value).doubleValue();
     }
 }

@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: NearPoint
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/nearpoint}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate            # Flyway owns the schema; Hibernate only validates
+    open-in-view: false
+  flyway:
+    baseline-on-migrate: true       # existing DB already has `places` but no history table
+    baseline-version: 1
+  cache:
+    cache-names: nearbyPlaces,placeDetails
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=10m
+  mvc:
+    problemdetails:
+      enabled: true                 # RFC 7807 error bodies
+
+server:
+  port: ${SERVER_PORT:8070}
+
+# --- Application config (env-var overridable) ---
+google:
+  places:
+    api:
+      key: ${GOOGLE_PLACES_API_KEY:}
+      # Places API (New) endpoints — overridable so tests can point them at WireMock
+      text-search-url: ${GOOGLE_PLACES_TEXT_SEARCH_URL:https://places.googleapis.com/v1/places:searchText}
+      nearby-search-url: ${GOOGLE_PLACES_NEARBY_SEARCH_URL:https://places.googleapis.com/v1/places:searchNearby}
+      details-url-base: ${GOOGLE_PLACES_DETAILS_URL_BASE:https://places.googleapis.com/v1/places/}
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://near-point.vercel.app}
+
+turnstile:
+  secret-key: ${TURNSTILE_SECRET_KEY:}    # blank -> bot verification disabled
+
+api:
+  key: ${API_KEY:}                        # blank -> API-key auth disabled (public demo)
+
+# --- Observability ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: NearPoint
+
+# --- Resilience for the Google Places call ---
+resilience4j:
+  circuitbreaker:
+    instances:
+      googlePlaces:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: false
+  retry:
+    instances:
+      googlePlaces:
+        maxAttempts: 3
+        waitDuration: 500ms
+        retryExceptions:
+          - org.springframework.web.client.ResourceAccessException

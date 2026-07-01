@@ -11,6 +11,11 @@ import java.util.List;
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 
-    @Query("SELECT p FROM Place p WHERE p.searchLatitude = :latitude AND p.searchLongitude = :longitude AND p.searchRadius = :radius")
-    List<Place> findBySearchParameters(@Param("latitude") Double latitude, @Param("longitude") Double longitude, @Param("radius") Integer radius);
+    @Query("SELECT p FROM Place p WHERE p.searchLatitude = :latitude AND p.searchLongitude = :longitude "
+            + "AND p.searchRadius = :radius AND p.searchQuery = :query AND p.searchCategory = :category")
+    List<Place> findBySearchParameters(@Param("latitude") Double latitude,
+                                       @Param("longitude") Double longitude,
+                                       @Param("radius") Integer radius,
+                                       @Param("query") String query,
+                                       @Param("category") String category);
 }

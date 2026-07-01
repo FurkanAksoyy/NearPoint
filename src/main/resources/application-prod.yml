@@ -1,0 +1,12 @@
+# Production profile: structured JSON logs (ECS), quieter levels.
+logging:
+  structured:
+    format:
+      console: ecs          # Boot native structured logging, no extra dependency
+  level:
+    root: INFO
+    com.furkanaksoyy.nearpoint: INFO
+
+springdoc:
+  swagger-ui:
+    enabled: true           # kept on for the portfolio demo; flip to false to hide

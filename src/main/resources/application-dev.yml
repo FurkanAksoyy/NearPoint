@@ -1,0 +1,8 @@
+# Developer profile: verbose logs, human-readable console, Swagger on.
+logging:
+  level:
+    com.furkanaksoyy.nearpoint: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: true

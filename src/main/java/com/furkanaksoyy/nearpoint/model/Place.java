@@ -43,10 +43,19 @@ public class Place {
     @Column(length = 1000)
     private String photoReference;
 
+    // Places API (New) extras
+    private Boolean openNow;
+    private String priceLevel;
+
     // Bu alan arama parametrelerini tanımlar
     private Double searchLatitude;
     private Double searchLongitude;
     private Integer searchRadius;
+
+    @Column(length = 255)
+    private String searchQuery;
+    @Column(length = 255)
+    private String searchCategory;
 
     // Önbellek kontrolü için
     private LocalDateTime createdAt;
