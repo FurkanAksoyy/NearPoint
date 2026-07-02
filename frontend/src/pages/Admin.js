@@ -8,7 +8,7 @@ import {
 import Seo from '../components/Seo';
 import { useSettings } from '../context/AppSettings';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+import { API_BASE_URL } from '../api';
 
 const StatCard = ({ icon, label, value, tag }) => (
     <div className="admin-card">

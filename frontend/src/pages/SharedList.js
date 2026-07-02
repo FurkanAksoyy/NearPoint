@@ -8,7 +8,7 @@ import Logo from '../components/Logo';
 import { photoUrl, prettyType } from '../utils/places';
 import { useSettings } from '../context/AppSettings';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+import { API_BASE_URL } from '../api';
 
 function routeUrl(places) {
     if (!places.length) return '#';

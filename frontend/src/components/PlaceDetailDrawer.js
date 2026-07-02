@@ -12,7 +12,7 @@ import { useSettings } from '../context/AppSettings';
 import { useTrip } from '../context/Trip';
 import { useVisited } from '../context/Visited';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+import { API_BASE_URL } from '../api';
 
 const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
     const { t } = useSettings();

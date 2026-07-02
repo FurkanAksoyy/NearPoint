@@ -10,7 +10,7 @@ import { itemListJsonLd, breadcrumbJsonLd } from '../utils/jsonld';
 import { findCity, findNearCategory, NEAR_CATEGORIES, CITIES } from '../utils/nearData';
 import { useSettings } from '../context/AppSettings';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+import { API_BASE_URL } from '../api';
 
 const SkeletonList = () => (
     <div>

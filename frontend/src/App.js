@@ -11,6 +11,7 @@ import { useAuth } from './context/Auth';
 import { useTrip } from './context/Trip';
 import { pushSupported, enablePush } from './utils/push';
 import { reverseGeocode } from './utils/geocode';
+import { API_BASE_URL } from './api';
 
 // Code-split secondary routes so the initial bundle stays small (better INP/LCP)
 const About = lazy(() => import('./pages/About'));
@@ -23,7 +24,6 @@ const SharedList = lazy(() => import('./pages/SharedList'));
 const PollPage = lazy(() => import('./pages/PollPage'));
 const Admin = lazy(() => import('./pages/Admin'));
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 const DEFAULT_COORDS = { lat: 41.0370, lng: 28.9851 }; // Istanbul
 const RADIUS = 2000;
 const FAV_KEY = 'np_favorites_v2';

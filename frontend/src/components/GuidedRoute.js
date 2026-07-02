@@ -6,7 +6,7 @@ import { photoUrl, prettyType } from '../utils/places';
 import { dwellFor } from '../utils/route';
 import { useSettings } from '../context/AppSettings';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+import { API_BASE_URL } from '../api';
 
 function whyLine(i, total, stop, t) {
     if (i === 0) return t('guided.why_start');

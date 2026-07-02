@@ -3,9 +3,9 @@ import axios from 'axios';
 import { MagnifyingGlass, NavigationArrow, CircleNotch, Clock } from '@phosphor-icons/react';
 import { CATEGORIES } from '../utils/places';
 import { useSettings } from '../context/AppSettings';
+import { API_BASE_URL } from '../api';
 
 const SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 const RECENT_KEY = 'np_recent';
 
 function loadRecent() {

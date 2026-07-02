@@ -8,7 +8,7 @@ import { distanceMeters, formatDistance } from '../utils/geo';
 import { itemListJsonLd } from '../utils/jsonld';
 import { useSettings } from '../context/AppSettings';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+import { API_BASE_URL } from '../api';
 
 // Curated collections — keyword-based (burgers/pizza) + category-based
 const COLLECTIONS = [
