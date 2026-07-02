@@ -5,17 +5,19 @@ and a **React** frontend: keyword search with autocomplete, a synced map + list,
 picks, walking tours, a trip planner, accounts with cross-device favorites, and web push —
 all containerized and CI-tested.
 
-<!-- Replace YOUR_SONAR_PROJECT_KEY once SonarCloud is connected -->
 ![CI](https://github.com/FurkanAksoyy/NearPoint/actions/workflows/ci.yml/badge.svg)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=YOUR_SONAR_PROJECT_KEY&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=YOUR_SONAR_PROJECT_KEY)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen)
 ![React](https://img.shields.io/badge/React-19-61dafb)
 ![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-### 🔗 Live demo
-- **Frontend:** https://near-point.vercel.app · **API docs:** `/swagger-ui.html`
+<!-- A SonarCloud quality-gate badge can be added here once a SONAR_TOKEN is configured (see CI). -->
+
+### 🔗 Run it
+Self-hosted with Docker Compose + Caddy (auto-HTTPS) — see **[DEPLOY.md](DEPLOY.md)**.
+API docs live at `/swagger-ui.html`. Enable Cloudflare Turnstile (`TURNSTILE_*`) in production
+so the public `/api/places` endpoints aren't an open, billable Google Places proxy.
 
 ---
 

@@ -8,12 +8,14 @@ import com.furkanaksoyy.nearpoint.dto.ReviewDto;
 import com.furkanaksoyy.nearpoint.mapper.PlaceMapper;
 import com.furkanaksoyy.nearpoint.model.Place;
 import com.furkanaksoyy.nearpoint.repository.PlaceRepository;
+import com.furkanaksoyy.nearpoint.util.SearchKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,24 +50,33 @@ public class PlaceService {
     @Cacheable(cacheNames = "nearbyPlaces",
             key = "T(com.furkanaksoyy.nearpoint.util.SearchKey).of(#query, #category, #latitude, #longitude, #radius)",
             unless = "#result == null || #result.isEmpty()")
+    @Transactional
     public List<PlaceResponse> search(String query, String category,
                                       Double latitude, Double longitude, Integer radius) {
         String q = normalize(query);
         String cat = normalize(category);
+        // Bucket the location once (~110 m) so Caffeine, the Postgres cache lookup, and storage
+        // all share the same key — otherwise GPS jitter makes the DB cache miss and re-bill Google.
+        Double bLat = SearchKey.round3(latitude);
+        Double bLng = SearchKey.round3(longitude);
 
         List<Place> existing = placeRepository.findBySearchParameters(
-                latitude, longitude, radius, q, cat, LocalDateTime.now().minusHours(cacheTtlHours));
+                bLat, bLng, radius, q, cat, LocalDateTime.now().minusHours(cacheTtlHours));
         if (!existing.isEmpty()) {
-            log.debug("DB cache hit for q='{}' cat='{}' ({}, {}, {}) -> {}", q, cat, latitude, longitude, radius, existing.size());
+            log.debug("DB cache hit for q='{}' cat='{}' ({}, {}, {}) -> {}", q, cat, bLat, bLng, radius, existing.size());
             return placeMapper.toResponseList(existing);
         }
 
+        // Query Google with the precise location for the best results...
         Map<String, Object> body = googlePlacesClient.search(query, category, latitude, longitude, radius);
-        List<Place> places = parsePlaces(body, q, cat, latitude, longitude, radius);
+        // ...but store against the bucketed key so future nearby searches hit the cache.
+        List<Place> places = parsePlaces(body, q, cat, bLat, bLng, radius);
 
         if (!places.isEmpty()) {
+            // Clear any stale rows for this exact search before inserting a fresh set (no unbounded growth).
+            placeRepository.deleteBySearchParameters(bLat, bLng, radius, q, cat);
             placeRepository.saveAll(places);
-            log.info("Saved {} places for q='{}' cat='{}' ({}, {}, {})", places.size(), q, cat, latitude, longitude, radius);
+            log.info("Saved {} places for q='{}' cat='{}' ({}, {}, {})", places.size(), q, cat, bLat, bLng, radius);
         }
         return placeMapper.toResponseList(places);
     }

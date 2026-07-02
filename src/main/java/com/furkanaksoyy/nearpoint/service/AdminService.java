@@ -55,6 +55,6 @@ public class AdminService {
 
         return new AdminStatsResponse(
                 users.count(), favorites.count(), sharedLists.count(),
-                pushSubs.count(), places.count(), http, google, topSearches);
+                pushSubs.count(), places.countDistinctPlaces(), http, google, topSearches);
     }
 }
