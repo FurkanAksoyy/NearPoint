@@ -52,8 +52,8 @@ public class SecurityConfig {
                                 "/actuator/prometheus", "/actuator/metrics/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        // Per-user endpoints require a valid JWT
-                        .requestMatchers("/api/me/**").authenticated()
+                        // Per-user + admin endpoints require a valid JWT (admin role checked in the controller)
+                        .requestMatchers("/api/me/**", "/api/admin/**").authenticated()
                         // Auth + public place search stay open (ApiKeyAuthFilter gates when configured)
                         .requestMatchers("/api/auth/**", "/api/places/**").permitAll()
                         .anyRequest().permitAll())

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Bell, BellRinging, MapTrifold } from '@phosphor-icons/react';
+import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Bell, BellRinging, MapTrifold, ChartBar } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import Logo from './components/Logo';
 import AuthModal from './components/AuthModal';
@@ -20,6 +20,7 @@ const ToursPage = lazy(() => import('./pages/ToursPage'));
 const TripPage = lazy(() => import('./pages/TripPage'));
 const NearPage = lazy(() => import('./pages/NearPage'));
 const SharedList = lazy(() => import('./pages/SharedList'));
+const Admin = lazy(() => import('./pages/Admin'));
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 const DEFAULT_COORDS = { lat: 41.0370, lng: 28.9851 }; // Istanbul
@@ -245,6 +246,11 @@ function App() {
                         <Heart size={16} weight={favorites.length ? 'fill' : 'regular'} style={{ color: favorites.length ? '#E8552B' : undefined }} />
                         <span className="nav-label">{favorites.length ? `${t('nav.saved')} · ${favorites.length}` : t('nav.saved')}</span>
                     </NavLink>
+                    {user && user.admin && (
+                        <NavLink to="/admin" title={t('nav.admin')}>
+                            <ChartBar size={16} weight="fill" /><span className="nav-label">{t('nav.admin')}</span>
+                        </NavLink>
+                    )}
                     <NavLink to="/about" title={t('nav.about')}>
                         <Info size={16} weight="regular" /><span className="nav-label">{t('nav.about')}</span>
                     </NavLink>
@@ -309,6 +315,7 @@ function App() {
                 } />
                 <Route path="/trip" element={<TripPage savedPlaces={favorites} />} />
                 <Route path="/s/:slug" element={<SharedList />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="/near/:city/:category" element={
                     <NearPage favorites={favIds} onToggleFav={toggleFav} />
                 } />

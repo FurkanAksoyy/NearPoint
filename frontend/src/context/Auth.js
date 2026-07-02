@@ -39,13 +39,13 @@ export function AuthProvider({ children }) {
 
     const register = useCallback(async (email, password, displayName) => {
         const { data } = await axios.post(`${API_BASE_URL}/api/auth/register`, { email, password, displayName });
-        persist(data.token, { email: data.email, displayName: data.displayName });
+        persist(data.token, { email: data.email, displayName: data.displayName, admin: data.admin });
         return data;
     }, [persist]);
 
     const login = useCallback(async (email, password) => {
         const { data } = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
-        persist(data.token, { email: data.email, displayName: data.displayName });
+        persist(data.token, { email: data.email, displayName: data.displayName, admin: data.admin });
         return data;
     }, [persist]);
 

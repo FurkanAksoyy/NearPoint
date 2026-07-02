@@ -28,5 +28,10 @@ public class User {
 
     private String passwordHash;
     private String displayName;
+
+    /** "USER" (default) or "ADMIN". Promote to admin directly in the DB — never in the repo. */
+    @Column(nullable = false)
+    private String role = "USER";
+
     private LocalDateTime createdAt;
 }

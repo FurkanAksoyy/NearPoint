@@ -57,6 +57,7 @@ public class AuthService {
     }
 
     private AuthResponse toResponse(User user) {
-        return new AuthResponse(jwtService.generate(user), user.getEmail(), user.getDisplayName());
+        boolean admin = "ADMIN".equals(user.getRole());
+        return new AuthResponse(jwtService.generate(user), user.getEmail(), user.getDisplayName(), admin);
     }
 }

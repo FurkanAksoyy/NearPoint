@@ -3,6 +3,8 @@ package com.furkanaksoyy.nearpoint.client;
 import com.furkanaksoyy.nearpoint.config.GooglePlacesConfig;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -41,16 +43,20 @@ public class GooglePlacesClient {
 
     private final RestTemplate restTemplate;
     private final GooglePlacesConfig config;
+    private final Counter apiCalls;
 
-    public GooglePlacesClient(RestTemplate restTemplate, GooglePlacesConfig config) {
+    public GooglePlacesClient(RestTemplate restTemplate, GooglePlacesConfig config, MeterRegistry registry) {
         this.restTemplate = restTemplate;
         this.config = config;
+        this.apiCalls = Counter.builder("nearpoint.google.calls")
+                .description("Outgoing Google Places API calls").register(registry);
     }
 
     @CircuitBreaker(name = "googlePlaces", fallbackMethod = "fallback")
     @Retry(name = "googlePlaces")
     public Map<String, Object> search(String query, String category,
                                       Double latitude, Double longitude, Integer radius) {
+        apiCalls.increment();
         boolean hasQuery = query != null && !query.isBlank();
         boolean hasCategory = category != null && !category.isBlank();
 
@@ -102,6 +108,7 @@ public class GooglePlacesClient {
     @CircuitBreaker(name = "googlePlaces", fallbackMethod = "detailsFallback")
     @Retry(name = "googlePlaces")
     public Map<String, Object> getDetails(String placeId) {
+        apiCalls.increment();
         String url = config.getDetailsUrlBase() + placeId;
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Goog-Api-Key", config.getApiKey());
@@ -125,6 +132,7 @@ public class GooglePlacesClient {
     @CircuitBreaker(name = "googlePlaces", fallbackMethod = "autocompleteFallback")
     @Retry(name = "googlePlaces")
     public Map<String, Object> autocomplete(String input, Double latitude, Double longitude) {
+        apiCalls.increment();
         Map<String, Object> body = new HashMap<>();
         body.put("input", input);
         body.put("locationBias", Map.of("circle", Map.of(

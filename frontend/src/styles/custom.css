@@ -1050,6 +1050,36 @@ h1, h2, h3, h4, h5, .fw-display {
     padding: 4px 11px; font-size: 0.8rem; font-weight: 600; color: var(--body);
 }
 
+/* ---------- Admin dashboard ---------- */
+.admin-page { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; }
+.admin-section-label {
+    font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin: 22px 0 12px;
+}
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.admin-grid.traffic { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.admin-card {
+    background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--r-card);
+    padding: 16px 18px;
+}
+.admin-ic {
+    width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent-strong); margin-bottom: 10px;
+}
+.admin-val { font-size: 1.8rem; font-weight: 800; color: var(--ink); line-height: 1.1; letter-spacing: -0.02em; }
+.admin-label { color: var(--body); font-size: 0.86rem; font-weight: 600; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+.admin-tag {
+    font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px;
+}
+.admin-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.admin-bar-row { display: flex; align-items: center; gap: 12px; }
+.admin-bar-label { flex: 0 0 34%; max-width: 34%; font-weight: 600; color: var(--ink); font-size: 0.9rem; }
+.admin-bar-track { flex: 1; height: 12px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+.admin-bar-fill { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.admin-bar-count { flex: 0 0 auto; font-weight: 700; color: var(--body); font-size: 0.88rem; min-width: 28px; text-align: right; }
+.admin-empty { color: var(--muted); display: flex; align-items: center; gap: 7px; }
+
 /* ---------- About page ---------- */
 .about-page { max-width: 960px; margin: 0 auto; padding: 8px 16px 72px; }
 .about-hero { text-align: center; padding: 40px 12px 32px; }
