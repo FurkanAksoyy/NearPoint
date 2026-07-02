@@ -170,11 +170,11 @@ const SearchBar = forwardRef(({
                         </ul>
                     )}
                 </div>
-                <button type="button" className="btn-loc" onClick={onUseLocation} disabled={locating || blocked}>
+                <button type="button" className="btn-loc" onClick={onUseLocation} disabled={locating || blocked} aria-label={t('search.near')}>
                     {locating ? <CircleNotch size={18} className="spin" /> : <NavigationArrow size={18} weight="fill" />}
                     <span className="d-none d-sm-inline">{locating ? t('search.locating') : t('search.near')}</span>
                 </button>
-                <button type="submit" className="btn-go" disabled={goDisabled}>
+                <button type="submit" className="btn-go" disabled={goDisabled} aria-label={t('search.search')}>
                     <MagnifyingGlass size={18} weight="bold" />
                     <span className="d-none d-sm-inline">{t('search.search')}</span>
                 </button>
