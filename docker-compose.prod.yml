@@ -23,6 +23,33 @@ services:
       timeout: 5s
       retries: 10
 
+  # Daily pg_dump to ./backups on the host, keeping the last 7 days.
+  db-backup:
+    image: postgres:16-alpine
+    container_name: nearpoint-db-backup
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        while true; do
+          ts=$$(date +%Y%m%d-%H%M);
+          if pg_dump -h db -U ${POSTGRES_USER:-postgres} ${POSTGRES_DB:-nearpoint} | gzip > /backups/nearpoint-$$ts.sql.gz; then
+            echo "backup ok: nearpoint-$$ts.sql.gz";
+          else
+            echo "backup FAILED"; rm -f /backups/nearpoint-$$ts.sql.gz;
+          fi;
+          find /backups -name '*.sql.gz' -mtime +7 -delete 2>/dev/null || true;
+          sleep 86400;
+        done
+
   backend:
     build:
       context: .
