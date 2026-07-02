@@ -86,6 +86,22 @@ test('register + login: navbar reflects authenticated user', async ({ page }, te
     await page.screenshot({ path: testInfo.outputPath('auth.png'), fullPage: false });
 });
 
+test('recent searches appear when the empty search box is focused', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    await page.locator('.place-card').first().waitFor({ timeout: 20000 });
+    await page.locator('.search-input').fill('hamburger');
+    await page.locator('.btn-go').click();
+    await page.waitForTimeout(1500);
+
+    await page.locator('.search-input').fill('');
+    await page.locator('.search-input').click();
+    await expect(page.locator('.suggest-head')).toBeVisible();
+    await expect(page.locator('.search-suggest .suggest-item', { hasText: 'hamburger' }).first()).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('recent.png'), fullPage: false });
+});
+
 test('autocomplete: suggestions appear as you type and are selectable', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
 

@@ -249,6 +249,16 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .suggest-item:hover { background: var(--line-soft); }
 .suggest-item .suggest-ic { color: var(--muted); flex: 0 0 auto; }
+.suggest-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px 4px; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);
+}
+.suggest-clear {
+    background: none; border: none; color: var(--accent-strong);
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; cursor: pointer; padding: 0;
+}
+.suggest-clear:hover { text-decoration: underline; }
 .search-input:focus {
     outline: none;
     border-color: var(--accent);

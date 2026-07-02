@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import axios from 'axios';
-import { MagnifyingGlass, NavigationArrow, CircleNotch } from '@phosphor-icons/react';
+import { MagnifyingGlass, NavigationArrow, CircleNotch, Clock } from '@phosphor-icons/react';
 import { CATEGORIES } from '../utils/places';
 import { useSettings } from '../context/AppSettings';
 
 const SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
+const RECENT_KEY = 'np_recent';
+
+function loadRecent() {
+    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; }
+}
 
 const SearchBar = forwardRef(({
     onSearch, coords, activeCategory, onUseLocation, locating, loading,
@@ -15,6 +20,7 @@ const SearchBar = forwardRef(({
     const [text, setText] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggest, setShowSuggest] = useState(false);
+    const [recent, setRecent] = useState(loadRecent);
     const holderRef = useRef(null);
     const widgetId = useRef(null);
     const blurTimer = useRef(null);
@@ -59,10 +65,25 @@ const SearchBar = forwardRef(({
         },
     }));
 
+    const addRecent = (q) => {
+        setRecent((prev) => {
+            const next = [q, ...prev.filter((r) => r.toLowerCase() !== q.toLowerCase())].slice(0, 6);
+            localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+            return next;
+        });
+    };
+
+    const clearRecent = () => {
+        setRecent([]);
+        localStorage.removeItem(RECENT_KEY);
+    };
+
     const runSearch = (value) => {
+        const q = value.trim();
         setShowSuggest(false);
         setSuggestions([]);
-        onSearch(value.trim(), '');
+        if (q) addRecent(q);
+        onSearch(q, '');
     };
 
     const submit = (e) => { e && e.preventDefault(); runSearch(text); };
@@ -82,6 +103,8 @@ const SearchBar = forwardRef(({
 
     const blocked = turnstileEnabled && !hasToken;
     const goDisabled = loading || blocked;
+    const showAuto = text.trim().length >= 2 && suggestions.length > 0;
+    const showRecent = text.trim().length < 2 && recent.length > 0;
 
     return (
         <div className="search-bar">
@@ -93,20 +116,31 @@ const SearchBar = forwardRef(({
                         placeholder={t('search.placeholder')}
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        onFocus={() => { if (suggestions.length) setShowSuggest(true); }}
+                        onFocus={() => setShowSuggest(true)}
                         onBlur={() => { blurTimer.current = setTimeout(() => setShowSuggest(false), 150); }}
                         onKeyDown={(e) => { if (e.key === 'Escape') setShowSuggest(false); }}
                         aria-label={t('search.search')}
                         autoComplete="off"
                     />
-                    {showSuggest && suggestions.length > 0 && (
+                    {showSuggest && (showAuto || showRecent) && (
                         <ul className="search-suggest" onMouseDown={() => clearTimeout(blurTimer.current)}>
-                            {suggestions.map((s, i) => (
-                                <li key={i} className="suggest-item" onClick={() => pickSuggestion(s)}>
-                                    <MagnifyingGlass size={15} className="suggest-ic" />
-                                    <span className="text-truncate">{s.text}</span>
+                            {showRecent && (
+                                <li className="suggest-head">
+                                    <span>{t('search.recent')}</span>
+                                    <button type="button" className="suggest-clear" onClick={clearRecent}>{t('search.clear')}</button>
                                 </li>
-                            ))}
+                            )}
+                            {showAuto
+                                ? suggestions.map((s, i) => (
+                                    <li key={`a${i}`} className="suggest-item" onClick={() => pickSuggestion(s)}>
+                                        <MagnifyingGlass size={15} className="suggest-ic" />
+                                        <span className="text-truncate">{s.text}</span>
+                                    </li>))
+                                : recent.map((r, i) => (
+                                    <li key={`r${i}`} className="suggest-item" onClick={() => { setText(r); runSearch(r); }}>
+                                        <Clock size={15} className="suggest-ic" />
+                                        <span className="text-truncate">{r}</span>
+                                    </li>))}
                         </ul>
                     )}
                 </div>

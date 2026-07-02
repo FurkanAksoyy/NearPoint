@@ -26,6 +26,8 @@ export const translations = {
         'search.near': 'Near me',
         'search.locating': 'Locating…',
         'search.search': 'Search',
+        'search.recent': 'Recent searches',
+        'search.clear': 'Clear',
 
         'cat.all': 'All',
         'cat.food': 'Food',
@@ -133,6 +135,8 @@ export const translations = {
         'search.near': 'Yakınımda',
         'search.locating': 'Konum alınıyor…',
         'search.search': 'Ara',
+        'search.recent': 'Son aramalar',
+        'search.clear': 'Temizle',
 
         'cat.all': 'Tümü',
         'cat.food': 'Yemek',
