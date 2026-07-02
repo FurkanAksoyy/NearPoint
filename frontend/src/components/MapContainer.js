@@ -84,7 +84,7 @@ const MapContainer = ({ places, center, hoveredId, selectedId, onHover, onSelect
                 </div>
             </OverlayViewF>
 
-            {places.map((p) => (
+            {places.map((p, i) => (
                 p.latitude != null && p.longitude != null && (
                     <OverlayViewF
                         key={p.id}
@@ -92,7 +92,8 @@ const MapContainer = ({ places, center, hoveredId, selectedId, onHover, onSelect
                         mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                     >
                         <div
-                            className={`map-marker ${hoveredId === p.id || selectedId === p.id ? 'active' : ''}`}
+                            className={`map-marker ${hoveredId === p.id || selectedId === p.id ? 'active' : ''} ${(p.rating || 0) >= 4.7 ? 'top-pick' : ''}`}
+                            style={{ '--i': Math.min(i, 9) }}
                             onMouseEnter={() => onHover(p.id)}
                             onMouseLeave={() => onHover(null)}
                             onClick={() => onSelect(p)}

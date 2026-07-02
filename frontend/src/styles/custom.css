@@ -76,7 +76,12 @@
     --shadow-lg: 0 16px 40px -12px rgba(0, 0, 0, 0.7);
     --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 8px -4px rgba(0, 0, 0, 0.55);
     --on-ink: #0B1220;
+    /* Ember glows like signage at night */
+    --shadow-ember: 0 0 0 1px rgba(232, 85, 43, 0.28), 0 4px 18px -2px rgba(232, 85, 43, 0.5);
 }
+/* Frosted nav + search over the night map */
+[data-theme="dark"] .np-nav { background: rgba(19, 28, 46, 0.82); backdrop-filter: blur(10px); }
+[data-theme="dark"] .search-bar { background: rgba(19, 28, 46, 0.82); backdrop-filter: blur(10px); }
 [data-theme="dark"] .badge-closed { background: rgba(248, 113, 113, 0.16); }
 [data-theme="dark"] .pane-error { background: rgba(248, 113, 113, 0.14); color: #F87171; }
 [data-theme="dark"] .search-input,
@@ -625,7 +630,11 @@ h1, h2, h3, h4, h5, .fw-display {
     border-color: transparent;
     box-shadow: var(--shadow-card);
 }
-.skel-thumb { width: 96px; height: 96px; flex: 0 0 96px; }
+.skel-thumb { position: relative; width: 96px; height: 96px; flex: 0 0 96px; overflow: hidden; }
+.skel-thumb::after {
+    content: ''; position: absolute; inset: 0; opacity: 0.6;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='20' fill='none' stroke='%23E8552B' stroke-opacity='.3' stroke-width='1.4'/%3E%3Ccircle cx='60' cy='60' r='36' fill='none' stroke='%23E8552B' stroke-opacity='.18' stroke-width='1.4'/%3E%3Ccircle cx='60' cy='60' r='52' fill='none' stroke='%23E8552B' stroke-opacity='.08' stroke-width='1.4'/%3E%3C/svg%3E") center/72% no-repeat;
+}
 .skel-line { height: 12px; margin-bottom: 8px; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
 .spin { animation: spin 0.9s linear infinite; }
@@ -679,6 +688,17 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .map-marker.active::after, .map-marker:hover::after { border-top-color: var(--ink); }
 
+/* Markers drop in with a subtle stagger; top-rated ones glow warmest */
+.map-marker { animation: marker-drop .34s cubic-bezier(.2, .7, .2, 1) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+@keyframes marker-drop { from { opacity: 0; transform: translate(-50%, -128%); } }
+.map-marker.top-pick { background: var(--ember-grad); box-shadow: var(--shadow-ember); }
+.map-marker.top-pick::after { border-top-color: #C2431F; }
+/* Selected marker earns a one-shot ripple, echoing the search center */
+.map-marker.active::before {
+    content: ''; position: absolute; inset: -7px; border-radius: 999px;
+    border: 2px solid var(--accent); animation: ping 1.4s cubic-bezier(0, 0, .2, 1) 2;
+}
+
 /* Search-center marker — the logo's ripple identity */
 .center-pin { position: relative; transform: translate(-50%, -50%); width: 14px; height: 14px; }
 .center-pin .cp-dot {
@@ -716,6 +736,15 @@ h1, h2, h3, h4, h5, .fw-display {
 .detail-title { color: #fff; margin: 0 0 5px; font-size: 1.45rem; letter-spacing: -0.02em; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45); }
 .detail-hero-meta { color: rgba(255, 255, 255, 0.94); }
 .detail-hero-meta .cnt, .detail-hero-meta .dot-sep { color: rgba(255, 255, 255, 0.7); }
+/* Boarding-pass fact strip */
+.spec-strip { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-block: 1px solid var(--line); margin: 8px 0 4px; }
+.spec { padding: 10px 4px; border-left: 1px solid var(--line-soft); text-align: center; }
+.spec:first-child { border-left: none; }
+.spec b { display: inline-flex; align-items: center; gap: 3px; justify-content: center; font-family: 'Geist Mono Variable', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 1.05rem; color: var(--ink); }
+.spec b .star { color: var(--star); }
+.spec b.spec-open { color: var(--open); font-size: 0.92rem; }
+.spec b.spec-closed { color: var(--closed); font-size: 0.92rem; }
+.spec span { display: block; margin-top: 2px; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
 .affiliate-cta {
     display: flex; align-items: center; gap: 8px;
     margin-top: 16px; padding: 12px 16px;
@@ -1272,7 +1301,15 @@ h1, h2, h3, h4, h5, .fw-display {
 
 /* ---------- About page ---------- */
 .about-page { max-width: 960px; margin: 0 auto; padding: 8px 16px 72px; }
-.about-hero { text-align: center; padding: 40px 12px 32px; }
+.about-hero { position: relative; overflow: hidden; text-align: center; padding: 48px 12px 36px; }
+.about-hero::before {
+    content: ''; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
+    width: 860px; height: 860px; z-index: -1; pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 860 860'%3E%3Cg fill='none' stroke='%23E8552B'%3E%3Ccircle cx='430' cy='430' r='110' stroke-opacity='.13' stroke-width='1.6'/%3E%3Ccircle cx='430' cy='430' r='190' stroke-opacity='.09' stroke-width='1.6'/%3E%3Ccircle cx='430' cy='430' r='270' stroke-opacity='.06' stroke-width='1.6'/%3E%3Ccircle cx='430' cy='430' r='350' stroke-opacity='.035' stroke-width='1.6'/%3E%3Ccircle cx='430' cy='430' r='420' stroke-opacity='.02' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent);
+    mask-image: radial-gradient(closest-side, #000 60%, transparent);
+}
+.about-hero > * { position: relative; }
 .about-hero h1 { font-size: clamp(2.2rem, 6vw, 3.2rem); margin: 14px 0 10px; letter-spacing: -0.03em; }
 .about-hero p { color: var(--body); font-size: 1.1rem; max-width: 54ch; margin: 0 auto; }
 .about-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }

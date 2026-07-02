@@ -55,7 +55,7 @@ jwt:
 vapid:
   public-key: ${VAPID_PUBLIC_KEY:}
   private-key: ${VAPID_PRIVATE_KEY:}
-  subject: ${VAPID_SUBJECT:mailto:hello@near-point.app}
+  subject: ${VAPID_SUBJECT:mailto:hello@nearpoint.app}
 
 # --- Observability ---
 management:

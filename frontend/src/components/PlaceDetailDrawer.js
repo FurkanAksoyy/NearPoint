@@ -65,24 +65,20 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
                     <div className="detail-hero-scrim">
                         <h3 className="detail-title">{place.name}</h3>
                         <div className="place-meta detail-hero-meta">
-                            {place.rating != null && (
-                                <span className="rating">
-                                    <Star size={15} weight="fill" className="star" />
-                                    {place.rating}
-                                    {place.userRatingsTotal != null && <span className="cnt">({place.userRatingsTotal})</span>}
-                                </span>
-                            )}
-                            {price && <><span className="dot-sep">·</span><span className="price">{price}</span></>}
-                            <span className="dot-sep">·</span>
                             <span>{prettyType(place.types)}</span>
-                            {place._distance != null && <><span className="dot-sep">·</span><span className="mono">{formatDistance(place._distance)}</span></>}
                         </div>
                     </div>
                 </div>
 
-                <div className="place-meta" style={{ marginTop: 8 }}>
-                    {place.openNow === true && <span className="badge-open"><Clock size={13} weight="fill" /> {t('card.open')}</span>}
-                    {place.openNow === false && <span className="badge-closed"><Clock size={13} /> {t('card.closed')}</span>}
+                <div className="spec-strip">
+                    {place.rating != null && (
+                        <div className="spec"><b><Star size={13} weight="fill" className="star" />{place.rating}</b><span>{t('compare.rating')}</span></div>
+                    )}
+                    {price && <div className="spec"><b>{price}</b><span>{t('compare.price')}</span></div>}
+                    {place._distance != null && <div className="spec"><b>{formatDistance(place._distance)}</b><span>{t('compare.distance')}</span></div>}
+                    {place.openNow != null && (
+                        <div className="spec"><b className={place.openNow ? 'spec-open' : 'spec-closed'}>{place.openNow ? t('card.open') : t('card.closed')}</b><span>{t('compare.open')}</span></div>
+                    )}
                 </div>
 
                 {details?.editorialSummary && (
