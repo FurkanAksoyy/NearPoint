@@ -21,6 +21,7 @@ const SearchBar = forwardRef(({
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggest, setShowSuggest] = useState(false);
     const [recent, setRecent] = useState(loadRecent);
+    const [activeIndex, setActiveIndex] = useState(-1);
     const holderRef = useRef(null);
     const widgetId = useRef(null);
     const blurTimer = useRef(null);
@@ -89,10 +90,9 @@ const SearchBar = forwardRef(({
     const submit = (e) => { e && e.preventDefault(); runSearch(text); };
 
     const pickSuggestion = (s) => {
-        // Use the first, most specific part of the suggestion as the query
-        const q = s.text.split(',')[0];
-        setText(q);
-        runSearch(q);
+        // Use the full suggestion so multi-part names ("Starbucks, Main St") keep their context
+        setText(s.text);
+        runSearch(s.text);
     };
 
     const clickChip = (key) => {
@@ -105,6 +105,21 @@ const SearchBar = forwardRef(({
     const goDisabled = loading || blocked;
     const showAuto = text.trim().length >= 2 && suggestions.length > 0;
     const showRecent = text.trim().length < 2 && recent.length > 0;
+    const listOpen = showSuggest && (showAuto || showRecent);
+    const options = showAuto ? suggestions.map((s) => s.text) : (showRecent ? recent : []);
+
+    const selectOption = (i) => {
+        if (showAuto) pickSuggestion(suggestions[i]);
+        else { setText(recent[i]); runSearch(recent[i]); }
+    };
+
+    const onKeyDown = (e) => {
+        if (e.key === 'Escape') { setShowSuggest(false); setActiveIndex(-1); return; }
+        if (!listOpen || !options.length) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIndex((i) => (i + 1) % options.length); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex((i) => (i <= 0 ? options.length - 1 : i - 1)); }
+        else if (e.key === 'Enter' && activeIndex >= 0) { e.preventDefault(); selectOption(activeIndex); }
+    };
 
     return (
         <div className="search-bar">
@@ -115,15 +130,20 @@ const SearchBar = forwardRef(({
                         className="search-input"
                         placeholder={t('search.placeholder')}
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={(e) => { setText(e.target.value); setActiveIndex(-1); }}
                         onFocus={() => setShowSuggest(true)}
                         onBlur={() => { blurTimer.current = setTimeout(() => setShowSuggest(false), 150); }}
-                        onKeyDown={(e) => { if (e.key === 'Escape') setShowSuggest(false); }}
+                        onKeyDown={onKeyDown}
                         aria-label={t('search.search')}
+                        role="combobox"
+                        aria-expanded={listOpen}
+                        aria-controls="search-listbox"
+                        aria-autocomplete="list"
+                        aria-activedescendant={activeIndex >= 0 ? `sg-${activeIndex}` : undefined}
                         autoComplete="off"
                     />
-                    {showSuggest && (showAuto || showRecent) && (
-                        <ul className="search-suggest" onMouseDown={() => clearTimeout(blurTimer.current)}>
+                    {listOpen && (
+                        <ul className="search-suggest" id="search-listbox" role="listbox" onMouseDown={() => clearTimeout(blurTimer.current)}>
                             {showRecent && (
                                 <li className="suggest-head">
                                     <span>{t('search.recent')}</span>
@@ -132,12 +152,18 @@ const SearchBar = forwardRef(({
                             )}
                             {showAuto
                                 ? suggestions.map((s, i) => (
-                                    <li key={`a${i}`} className="suggest-item" onClick={() => pickSuggestion(s)}>
+                                    <li key={`a${i}`} id={`sg-${i}`} role="option" aria-selected={activeIndex === i}
+                                        className={`suggest-item ${activeIndex === i ? 'active' : ''}`}
+                                        onMouseEnter={() => setActiveIndex(i)}
+                                        onClick={() => pickSuggestion(s)}>
                                         <MagnifyingGlass size={15} className="suggest-ic" />
                                         <span className="text-truncate">{s.text}</span>
                                     </li>))
                                 : recent.map((r, i) => (
-                                    <li key={`r${i}`} className="suggest-item" onClick={() => { setText(r); runSearch(r); }}>
+                                    <li key={`r${i}`} id={`sg-${i}`} role="option" aria-selected={activeIndex === i}
+                                        className={`suggest-item ${activeIndex === i ? 'active' : ''}`}
+                                        onMouseEnter={() => setActiveIndex(i)}
+                                        onClick={() => { setText(r); runSearch(r); }}>
                                         <Clock size={15} className="suggest-ic" />
                                         <span className="text-truncate">{r}</span>
                                     </li>))}

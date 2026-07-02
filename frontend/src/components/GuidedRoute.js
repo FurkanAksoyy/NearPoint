@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { X, ArrowLeft, ArrowRight, Star, Quotes, NavigationArrow, Clock, CheckCircle, MapPin } from '@phosphor-icons/react';
@@ -21,6 +21,16 @@ const GuidedRoute = ({ stops = [], legs = [], onClose }) => {
     const [i, setI] = useState(0);
     const [cache, setCache] = useState({});
     const stop = stops[i];
+    const dialogRef = useRef(null);
+    const prevFocus = useRef(null);
+
+    // Move focus into the dialog on open, restore it on close (accessible modal)
+    useEffect(() => {
+        prevFocus.current = document.activeElement;
+        const el = dialogRef.current;
+        if (el) { const first = el.querySelector('button, a[href]'); (first || el).focus(); }
+        return () => { if (prevFocus.current && prevFocus.current.focus) prevFocus.current.focus(); };
+    }, []);
 
     useEffect(() => {
         if (!stop || cache[stop.placeId] !== undefined) return;
@@ -36,6 +46,14 @@ const GuidedRoute = ({ stops = [], legs = [], onClose }) => {
             if (e.key === 'Escape') onClose();
             if (e.key === 'ArrowRight' && i < stops.length - 1) setI(i + 1);
             if (e.key === 'ArrowLeft' && i > 0) setI(i - 1);
+            if (e.key === 'Tab' && dialogRef.current) {
+                const f = dialogRef.current.querySelectorAll('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])');
+                if (!f.length) return;
+                const first = f[0];
+                const lastEl = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); lastEl.focus(); }
+                else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
+            }
         };
         window.addEventListener('keydown', h);
         return () => window.removeEventListener('keydown', h);
@@ -59,7 +77,7 @@ const GuidedRoute = ({ stops = [], legs = [], onClose }) => {
     const last = i === stops.length - 1;
 
     return createPortal(
-        <div className="guided" role="dialog" aria-modal="true">
+        <div className="guided" role="dialog" aria-modal="true" aria-label={stop.name} ref={dialogRef} tabIndex={-1}>
             <div className="guided-top">
                 <button className="guided-x" onClick={onClose} aria-label="Close"><X size={20} /></button>
                 <div className="guided-bar"><div className="guided-bar-fill" style={{ width: `${((i + 1) / stops.length) * 100}%` }} /></div>

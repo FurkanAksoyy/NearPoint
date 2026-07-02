@@ -271,7 +271,7 @@ h1, h2, h3, h4, h5, .fw-display {
     color: var(--ink);
     font-size: 0.9rem;
 }
-.suggest-item:hover { background: var(--line-soft); }
+.suggest-item:hover, .suggest-item.active { background: var(--line-soft); }
 .suggest-item .suggest-ic { color: var(--muted); flex: 0 0 auto; }
 .suggest-head {
     display: flex; align-items: center; justify-content: space-between;
