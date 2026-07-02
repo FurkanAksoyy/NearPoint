@@ -1,13 +1,16 @@
 import React from 'react';
-import { Star, Heart, Clock, MapPin, Storefront } from '@phosphor-icons/react';
+import { Star, Heart, Clock, MapPin, Storefront, Scales } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
 import { isFeatured } from '../utils/affiliate';
 import { useSettings } from '../context/AppSettings';
+import { useCompare } from '../context/Compare';
 
 const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t }) => {
     const img = photoUrl(place.photoReference, 200);
     const price = formatPrice(place.priceLevel);
+    const { inCompare, toggle: toggleCompare } = useCompare();
+    const cmp = inCompare(place.placeId);
 
     return (
         <div
@@ -26,6 +29,14 @@ const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t })
                 {isFeatured(place.placeId) && <span className="featured-badge">{t('label.featured')}</span>}
                 <div className="place-name">
                     <span className="text-truncate">{place.name}</span>
+                    <button
+                        className={`cmp-btn ${cmp ? 'on' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); toggleCompare(place); }}
+                        aria-label={t('compare.add')}
+                        title={t('compare.add')}
+                    >
+                        <Scales size={18} weight={cmp ? 'fill' : 'regular'} />
+                    </button>
                     <button
                         className={`fav-btn ${isFav ? 'on' : ''}`}
                         onClick={(e) => { e.stopPropagation(); onToggleFav(place); }}

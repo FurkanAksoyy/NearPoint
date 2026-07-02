@@ -177,6 +177,22 @@ test('trip planner: add a place, see it on /trip with a route link', async ({ pa
     await page.screenshot({ path: testInfo.outputPath('trip.png'), fullPage: false });
 });
 
+test('compare + decide: side-by-side table picks a winner', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await page.goto('/?q=hamburger&lat=41.037&lng=28.985');
+    await page.locator('.place-card').first().waitFor({ timeout: 20000 });
+    const cards = page.locator('.place-card');
+    await cards.nth(0).locator('.cmp-btn').click();
+    await cards.nth(1).locator('.cmp-btn').click();
+    await expect(page.locator('.cmp-tray')).toBeVisible();
+
+    await page.locator('.cmp-tray .btn-ember').click();
+    await expect(page.locator('.cmp-modal')).toBeVisible();
+    await page.locator('.cmp-decide .btn-ember').click();
+    await expect(page.locator('.cmp-badge')).toBeVisible();
+    await expect(page.locator('.cmp-reason')).toBeVisible();
+});
+
 test('been-there: check-ins show on a personal map with stats', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
     await page.goto('/');

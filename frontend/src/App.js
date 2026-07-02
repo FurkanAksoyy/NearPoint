@@ -5,6 +5,7 @@ import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Be
 import Home from './pages/Home';
 import Logo from './components/Logo';
 import AuthModal from './components/AuthModal';
+import CompareBar from './components/CompareBar';
 import { useSettings } from './context/AppSettings';
 import { useAuth } from './context/Auth';
 import { useTrip } from './context/Trip';
@@ -317,6 +318,7 @@ function App() {
             </Suspense>
 
             <AuthModal show={authOpen} onHide={() => setAuthOpen(false)} />
+            <CompareBar />
         </Router>
     );
 }

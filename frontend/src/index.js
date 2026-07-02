@@ -11,6 +11,7 @@ import { AppSettingsProvider } from './context/AppSettings';
 import { AuthProvider } from './context/Auth';
 import { TripProvider } from './context/Trip';
 import { VisitedProvider } from './context/Visited';
+import { CompareProvider } from './context/Compare';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -20,7 +21,9 @@ root.render(
       <AuthProvider>
         <TripProvider>
           <VisitedProvider>
-            <App />
+            <CompareProvider>
+              <App />
+            </CompareProvider>
           </VisitedProvider>
         </TripProvider>
       </AuthProvider>
