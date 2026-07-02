@@ -2,11 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
     MagnifyingGlass, MapTrifold, Sparkle, Path, Heart, DeviceMobile,
-    NavigationArrow, ListChecks, Sun, Bell, Star, Globe,
+    NavigationArrow, ListChecks, Sun, Bell, Star, Globe, GithubLogo,
 } from '@phosphor-icons/react';
 import Logo from '../components/Logo';
 import Seo from '../components/Seo';
 import { useSettings } from '../context/AppSettings';
+
+const REPO_URL = 'https://github.com/FurkanAksoyy/NearPoint';
 
 const FEATURES = [
     { Icon: MagnifyingGlass, en: ['Smart search', 'Autocomplete, categories, filters and recent searches.'], tr: ['Akıllı arama', 'Otomatik tamamlama, kategoriler, filtreler ve son aramalar.'] },
@@ -93,6 +95,15 @@ const About = () => {
                         </div>
                     ))}
                 </div>
+            </section>
+
+            <section className="about-section">
+                <a className="github-cta" href={REPO_URL} target="_blank" rel="noopener noreferrer">
+                    <GithubLogo size={22} weight="fill" />
+                    {t('about.star')}
+                    <Star size={16} weight="fill" className="gh-star" />
+                </a>
+                <p className="github-note">{t('about.star_note')}</p>
             </section>
 
             <div className="about-badges">

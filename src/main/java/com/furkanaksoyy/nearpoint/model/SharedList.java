@@ -33,5 +33,10 @@ public class SharedList {
     private String payload;
 
     private Long userId;
+
+    /** True for app-generated "poll of the week" entries surfaced on the home page. */
+    @Column(nullable = false)
+    private boolean featured = false;
+
     private LocalDateTime createdAt;
 }

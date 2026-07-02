@@ -5,6 +5,7 @@ import com.furkanaksoyy.nearpoint.dto.ShareRequest;
 import com.furkanaksoyy.nearpoint.dto.SharedListResponse;
 import com.furkanaksoyy.nearpoint.model.PollVote;
 import com.furkanaksoyy.nearpoint.repository.PollVoteRepository;
+import com.furkanaksoyy.nearpoint.repository.SharedListRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +20,19 @@ public class PollService {
 
     private final ShareService shareService;
     private final PollVoteRepository votes;
+    private final SharedListRepository sharedLists;
 
-    public PollService(ShareService shareService, PollVoteRepository votes) {
+    public PollService(ShareService shareService, PollVoteRepository votes, SharedListRepository sharedLists) {
         this.shareService = shareService;
         this.votes = votes;
+        this.sharedLists = sharedLists;
+    }
+
+    /** The latest app-generated "poll of the week", or null if none yet. */
+    public PollResponse featured() {
+        return sharedLists.findFirstByFeaturedTrueOrderByCreatedAtDesc()
+                .map(sl -> get(sl.getSlug()))
+                .orElse(null);
     }
 
     /** A poll reuses the shared-list store (kind = "poll") for its place options. */

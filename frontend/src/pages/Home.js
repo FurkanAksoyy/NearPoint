@@ -1,6 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { Drawer } from 'vaul';
-import { MagnifyingGlass, Warning, Shuffle } from '@phosphor-icons/react';
+import { MagnifyingGlass, Warning, Shuffle, UsersThree, CaretRight } from '@phosphor-icons/react';
+import { API_BASE_URL } from '../api';
 import SearchBar from '../components/SearchBar';
 import FilterControls from '../components/FilterControls';
 import MoodRow from '../components/MoodRow';
@@ -44,8 +47,17 @@ const Home = ({
     const { visited } = useVisited();
     const isMobile = useMediaQuery('(max-width: 900px)');
     const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false, maxPrice: 0, hiddenGems: false, accessible: false });
+    const [featuredPoll, setFeaturedPoll] = useState(null);
     const [hoveredId, setHoveredId] = useState(null);
     const [selected, setSelected] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        axios.get(`${API_BASE_URL}/api/poll/featured`)
+            .then((r) => { if (!cancelled && r.status === 200 && r.data && r.data.slug) setFeaturedPoll(r.data); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
     const [showDrawer, setShowDrawer] = useState(false);
     const [snap, setSnap] = useState(SNAPS[0]);
     // Open the sheet after mount so vaul animates to the initial snap (avoids a stuck-closed state)
@@ -104,6 +116,17 @@ const Home = ({
 
     const resultsBlock = (
         <>
+            {featuredPoll && !lastSearch.query && (
+                <Link className="featured-poll" to={`/poll/${featuredPoll.slug}`}>
+                    <div className="fp-ic"><UsersThree size={20} weight="fill" /></div>
+                    <div className="fp-body">
+                        <div className="fp-label">{t('featured.title')}</div>
+                        <div className="fp-name text-truncate">{featuredPoll.name}</div>
+                    </div>
+                    <span className="fp-cta">{t('featured.vote')} <CaretRight size={14} weight="bold" /></span>
+                </Link>
+            )}
+
             <LocationBar label={locLabel} geolocated={geolocated} onUseLocation={onUseLocation} locating={locating} />
 
             <div className="results-head">

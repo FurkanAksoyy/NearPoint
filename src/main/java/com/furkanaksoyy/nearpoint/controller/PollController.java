@@ -6,6 +6,7 @@ import com.furkanaksoyy.nearpoint.dto.VoteRequest;
 import com.furkanaksoyy.nearpoint.service.PollService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,12 @@ public class PollController {
     @PostMapping
     public Map<String, String> create(@Valid @RequestBody ShareRequest request) {
         return Map.of("slug", pollService.create(request));
+    }
+
+    @GetMapping("/featured")
+    public ResponseEntity<PollResponse> featured() {
+        PollResponse poll = pollService.featured();
+        return poll != null ? ResponseEntity.ok(poll) : ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{slug}")

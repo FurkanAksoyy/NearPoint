@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface SharedListRepository extends JpaRepository<SharedList, Long> {
     Optional<SharedList> findBySlug(String slug);
     boolean existsBySlug(String slug);
+    Optional<SharedList> findFirstByFeaturedTrueOrderByCreatedAtDesc();
 }
