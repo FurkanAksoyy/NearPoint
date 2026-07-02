@@ -3,7 +3,7 @@ import { Offcanvas } from 'react-bootstrap';
 import axios from 'axios';
 import {
     Star, Heart, Clock, MapPin, ArrowSquareOut, NavigationArrow,
-    Phone, Globe, CircleNotch, ChatCircle,
+    Phone, Globe, CircleNotch, ChatCircle, ShareNetwork, Check,
 } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
@@ -15,6 +15,7 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
     const { t } = useSettings();
     const [details, setDetails] = useState(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (!show || !place) return;
@@ -35,6 +36,18 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
     const mapsUrl = details?.googleMapsUri
         || `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}&query_place_id=${place.placeId}`;
     const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}&destination_place_id=${place.placeId}`;
+
+    const share = async () => {
+        const data = { title: place.name, text: `${place.name} · NearPoint`, url: mapsUrl };
+        try {
+            if (navigator.share) await navigator.share(data);
+            else {
+                await navigator.clipboard.writeText(mapsUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1600);
+            }
+        } catch { /* user cancelled */ }
+    };
 
     return (
         <Offcanvas show={show} onHide={onHide} placement="end" className="detail-drawer" style={{ width: 'min(440px, 100vw)' }}>
@@ -131,6 +144,9 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
                     <a className="btn-ghost" href={mapsUrl} target="_blank" rel="noopener noreferrer">
                         <ArrowSquareOut size={17} /> {t('detail.maps')}
                     </a>
+                    <button className="btn-ghost" onClick={share} title={t('detail.share')} aria-label={t('detail.share')}>
+                        {copied ? <Check size={17} color="#15803D" /> : <ShareNetwork size={17} />}
+                    </button>
                     <button className="btn-ghost" onClick={() => onToggleFav(place)}>
                         <Heart size={17} weight={isFav ? 'fill' : 'regular'} color={isFav ? '#E8552B' : undefined} />
                     </button>

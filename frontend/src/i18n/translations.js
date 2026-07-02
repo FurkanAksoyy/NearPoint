@@ -58,6 +58,8 @@ export const translations = {
         'detail.loading': 'Loading details…',
         'detail.hours': 'Opening hours',
         'detail.reviews': 'Reviews',
+        'detail.share': 'Share',
+        'detail.copied': 'Copied',
 
         'saved.title': 'Saved places',
         'saved.count': 'saved',
@@ -167,6 +169,8 @@ export const translations = {
         'detail.loading': 'Detaylar yükleniyor…',
         'detail.hours': 'Çalışma saatleri',
         'detail.reviews': 'Yorumlar',
+        'detail.share': 'Paylaş',
+        'detail.copied': 'Kopyalandı',
 
         'saved.title': 'Kayıtlı yerler',
         'saved.count': 'kayıtlı',
