@@ -2,13 +2,14 @@ import React from 'react';
 import { Clock, Diamond, Wheelchair } from '@phosphor-icons/react';
 import { useSettings } from '../context/AppSettings';
 
-const FilterControls = ({ filters, onChange }) => {
+const FilterControls = ({ filters, onChange, showForYou }) => {
     const { t } = useSettings();
     const set = (patch) => onChange({ ...filters, ...patch });
 
     return (
         <div className="filter-bar">
             <select value={filters.sort} onChange={(e) => set({ sort: e.target.value })} aria-label={t('filter.filters')}>
+                {showForYou && <option value="foryou">✨ {t('filter.for_you')}</option>}
                 <option value="relevance">{t('filter.best')}</option>
                 <option value="rating">{t('filter.rated')}</option>
                 <option value="distance">{t('filter.nearest')}</option>

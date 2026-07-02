@@ -12,8 +12,10 @@ import Seo from '../components/Seo';
 import { distanceMeters } from '../utils/geo';
 import { CATEGORIES, priceLevelNum } from '../utils/places';
 import { websiteJsonLd, itemListJsonLd } from '../utils/jsonld';
+import { buildTaste, tasteScore } from '../utils/taste';
 import useMediaQuery from '../utils/useMediaQuery';
 import { useSettings } from '../context/AppSettings';
+import { useVisited } from '../context/Visited';
 
 const SNAPS = [0.42, 0.75, 0.96];
 
@@ -34,11 +36,12 @@ const Skeletons = () => (
 
 const Home = ({
     results, loading, error, coords, lastSearch,
-    favorites, onToggleFav, onSearch, onSearchArea, onUseLocation, locating,
+    favorites, savedPlaces, onToggleFav, onSearch, onSearchArea, onUseLocation, locating,
     locLabel, geolocated,
     turnstileEnabled, hasTurnstileToken, onTurnstileToken, searchBarRef,
 }) => {
     const { t, lang } = useSettings();
+    const { visited } = useVisited();
     const isMobile = useMediaQuery('(max-width: 900px)');
     const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false, maxPrice: 0, hiddenGems: false, accessible: false });
     const [hoveredId, setHoveredId] = useState(null);
@@ -54,6 +57,9 @@ const Home = ({
         }
         setSheetOpen(false);
     }, [isMobile]);
+
+    const taste = useMemo(() => buildTaste([...(savedPlaces || []), ...visited]), [savedPlaces, visited]);
+    const hasTaste = (savedPlaces?.length || 0) + visited.length >= 2 && Object.keys(taste).length > 0;
 
     const list = useMemo(() => {
         let items = results.map((p) => ({
@@ -72,8 +78,9 @@ const Home = ({
         if (filters.accessible) items = items.filter((p) => p.wheelchairAccessible === true);
         if (filters.sort === 'rating') items = [...items].sort((a, b) => (b.rating || 0) - (a.rating || 0));
         else if (filters.sort === 'distance') items = [...items].sort((a, b) => (a._distance ?? 1e12) - (b._distance ?? 1e12));
+        else if (filters.sort === 'foryou') items = [...items].sort((a, b) => tasteScore(b, taste) - tasteScore(a, taste) || (b.rating || 0) - (a.rating || 0));
         return items;
-    }, [results, coords, filters]);
+    }, [results, coords, filters, taste]);
 
     const catTkey = CATEGORIES.find((c) => c.key === lastSearch.category)?.tkey;
     const title = lastSearch.query
@@ -116,7 +123,7 @@ const Home = ({
             )}
 
             {!loading && !error && results.length > 0 && (
-                <FilterControls filters={filters} onChange={setFilters} />
+                <FilterControls filters={filters} onChange={setFilters} showForYou={hasTaste} />
             )}
 
             {loading && <div aria-busy="true"><Skeletons /></div>}

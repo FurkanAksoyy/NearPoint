@@ -295,6 +295,7 @@ function App() {
                         coords={coords}
                         lastSearch={lastSearch}
                         favorites={favIds}
+                        savedPlaces={favorites}
                         onToggleFav={toggleFav}
                         onSearch={(q, cat) => runSearch(q, cat)}
                         onSearchArea={handleSearchArea}
