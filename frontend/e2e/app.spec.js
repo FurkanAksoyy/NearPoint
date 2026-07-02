@@ -199,6 +199,26 @@ test('share: a trip becomes a public link that renders read-only', async ({ page
     await expect(page.locator('.tour-stop').first()).toBeVisible();
 });
 
+test('group poll: create from compare, vote, see live results', async ({ page, context }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/?q=hamburger&lat=41.037&lng=28.985');
+    await page.locator('.place-card').first().waitFor({ timeout: 20000 });
+    const cards = page.locator('.place-card');
+    await cards.nth(0).locator('.cmp-btn').click();
+    await cards.nth(1).locator('.cmp-btn').click();
+    await page.locator('.cmp-tray .btn-ember').click();
+    await page.locator('.cmp-decide .btn-ghost').filter({ hasText: /poll/i }).click();
+    await page.waitForTimeout(1000);
+    const url = await page.evaluate(() => navigator.clipboard.readText());
+    expect(url).toContain('/poll/');
+
+    await page.goto(url);
+    await page.locator('.poll-vote').first().click();
+    await expect(page.locator('.poll-voted')).toBeVisible();
+    await expect(page.locator('.poll-total')).toContainText('1');
+});
+
 test('compare + decide: side-by-side table picks a winner', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
     await page.goto('/?q=hamburger&lat=41.037&lng=28.985');

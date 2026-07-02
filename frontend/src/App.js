@@ -20,6 +20,7 @@ const ToursPage = lazy(() => import('./pages/ToursPage'));
 const TripPage = lazy(() => import('./pages/TripPage'));
 const NearPage = lazy(() => import('./pages/NearPage'));
 const SharedList = lazy(() => import('./pages/SharedList'));
+const PollPage = lazy(() => import('./pages/PollPage'));
 const Admin = lazy(() => import('./pages/Admin'));
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
@@ -315,6 +316,7 @@ function App() {
                 } />
                 <Route path="/trip" element={<TripPage savedPlaces={favorites} />} />
                 <Route path="/s/:slug" element={<SharedList />} />
+                <Route path="/poll/:slug" element={<PollPage />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/near/:city/:category" element={
                     <NearPage favorites={favIds} onToggleFav={toggleFav} />

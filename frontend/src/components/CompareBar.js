@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Scales, X, Trophy } from '@phosphor-icons/react';
+import { Scales, X, Trophy, UsersThree, Check } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
+import { createPoll, pollUrl } from '../utils/poll';
 import { useSettings } from '../context/AppSettings';
 import { useCompare } from '../context/Compare';
 
@@ -26,6 +27,18 @@ const CompareBar = () => {
     const { compare, remove, clear } = useCompare();
     const [open, setOpen] = useState(false);
     const [winner, setWinner] = useState(null);
+    const [pollCopied, setPollCopied] = useState(false);
+
+    const makePoll = async () => {
+        try {
+            const slug = await createPoll(t('poll.default_name'), compare);
+            const url = pollUrl(slug);
+            if (navigator.share) { await navigator.share({ title: t('poll.default_name'), url }).catch(() => {}); }
+            else { await navigator.clipboard.writeText(url); }
+            setPollCopied(true);
+            setTimeout(() => setPollCopied(false), 1800);
+        } catch { /* ignore */ }
+    };
 
     useEffect(() => {
         if (!open) return undefined;
@@ -83,9 +96,15 @@ const CompareBar = () => {
                         </div>
 
                         <div className="cmp-decide">
-                            <button className="btn-ember" onClick={() => setWinner(decide(compare))}>
-                                <Trophy size={16} weight="fill" /> {t('compare.decide')}
-                            </button>
+                            <div className="cmp-decide-actions">
+                                <button className="btn-ember" onClick={() => setWinner(decide(compare))}>
+                                    <Trophy size={16} weight="fill" /> {t('compare.decide')}
+                                </button>
+                                <button className="btn-ghost" onClick={makePoll}>
+                                    {pollCopied ? <Check size={16} color="#15803D" /> : <UsersThree size={16} weight="fill" />}
+                                    {pollCopied ? t('poll.copied') : t('compare.poll')}
+                                </button>
+                            </div>
                             {winner && <p className="cmp-reason">{t('compare.pick')}: <b>{winner.name}</b> — {t('compare.reason')}.</p>}
                         </div>
                     </div>

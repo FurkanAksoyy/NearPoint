@@ -512,6 +512,32 @@ h1, h2, h3, h4, h5, .fw-display {
 .cmp-row span { color: var(--muted); flex: 0 0 auto; }
 .cmp-row b { color: var(--ink); text-align: right; min-width: 0; }
 .cmp-decide { margin-top: 18px; text-align: center; }
+.cmp-decide-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+/* ---------- Poll page ---------- */
+.poll-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.poll-opt {
+    display: flex; align-items: center; gap: 12px; padding: 12px;
+    border: 1px solid var(--line); border-radius: var(--r-card); background: var(--surface-raised);
+    position: relative;
+}
+.poll-opt.mine { border-color: var(--accent); }
+.poll-opt.lead { box-shadow: 0 0 0 1px var(--accent-soft); }
+.poll-thumb { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; }
+.poll-thumb.placeholder { display: grid; place-items: center; background: var(--line-soft); color: var(--muted); }
+.poll-body { flex: 1; min-width: 0; }
+.poll-name { font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.poll-lead {
+    font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--accent-strong); background: var(--accent-soft); border-radius: 4px; padding: 1px 6px;
+}
+.poll-bar { margin-top: 8px; height: 8px; border-radius: 999px; background: var(--line-soft); overflow: hidden; }
+.poll-bar-fill { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s ease; }
+.poll-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.poll-vote { padding: 6px 16px; }
+.poll-voted { display: inline-flex; align-items: center; gap: 5px; color: var(--open); font-weight: 700; font-size: 0.86rem; }
+.poll-count { color: var(--muted); font-weight: 700; font-size: 0.82rem; }
+.poll-total { text-align: center; color: var(--muted); font-weight: 600; margin-top: 16px; }
 .cmp-reason { margin-top: 12px; color: var(--body); font-size: 0.94rem; }
 .cmp-reason b { color: var(--accent-strong); }
 @media (max-width: 600px) { .cmp-thumb { height: 64px; } .cmp-col { padding: 8px; } }
