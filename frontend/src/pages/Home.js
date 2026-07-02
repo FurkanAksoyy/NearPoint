@@ -4,6 +4,7 @@ import { MagnifyingGlass, Warning } from '@phosphor-icons/react';
 import SearchBar from '../components/SearchBar';
 import FilterControls from '../components/FilterControls';
 import MoodRow from '../components/MoodRow';
+import LocationBar from '../components/LocationBar';
 import PlacesList from '../components/PlacesList';
 import MapContainer from '../components/MapContainer';
 import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
@@ -34,6 +35,7 @@ const Skeletons = () => (
 const Home = ({
     results, loading, error, coords, lastSearch,
     favorites, onToggleFav, onSearch, onSearchArea, onUseLocation, locating,
+    locLabel, geolocated,
     turnstileEnabled, hasTurnstileToken, onTurnstileToken, searchBarRef,
 }) => {
     const { t, lang } = useSettings();
@@ -94,6 +96,8 @@ const Home = ({
 
     const resultsBlock = (
         <>
+            <LocationBar label={locLabel} geolocated={geolocated} onUseLocation={onUseLocation} locating={locating} />
+
             <div className="results-head">
                 <h2 className="text-capitalize">{title}</h2>
                 {!loading && <span className="count">{list.length} {t('home.places')}</span>}

@@ -83,6 +83,11 @@ export const translations = {
         'filter.hidden_gems': 'Hidden gems',
         'filter.hidden_gems_hint': 'Highly rated, not yet crowded',
         'mood.label': 'In the mood for…',
+        'loc.near': 'Near',
+        'loc.showing_near': 'Showing places near',
+        'loc.use_my': 'Use my location',
+        'loc.this_area': 'this area',
+        'loc.your_location': 'your location',
 
         'card.open': 'Open now',
         'card.closed': 'Closed',
@@ -238,6 +243,11 @@ export const translations = {
         'filter.hidden_gems': 'Gizli cevherler',
         'filter.hidden_gems_hint': 'Yüksek puanlı, henüz kalabalık değil',
         'mood.label': 'Canın ne çekiyor?',
+        'loc.near': 'Konum:',
+        'loc.showing_near': 'Şurada gösteriliyor:',
+        'loc.use_my': 'Konumumu kullan',
+        'loc.this_area': 'bu bölge',
+        'loc.your_location': 'konumun',
 
         'card.open': 'Şu an açık',
         'card.closed': 'Kapalı',

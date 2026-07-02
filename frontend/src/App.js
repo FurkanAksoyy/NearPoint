@@ -9,6 +9,7 @@ import { useSettings } from './context/AppSettings';
 import { useAuth } from './context/Auth';
 import { useTrip } from './context/Trip';
 import { pushSupported, enablePush } from './utils/push';
+import { reverseGeocode } from './utils/geocode';
 
 // Code-split secondary routes so the initial bundle stays small (better INP/LCP)
 const About = lazy(() => import('./pages/About'));
@@ -44,9 +45,25 @@ function parseUrl() {
     };
 }
 
+const LOC_KEY = 'np_loc';
+function loadLoc() {
+    try {
+        const l = JSON.parse(localStorage.getItem(LOC_KEY) || 'null');
+        return l && typeof l.lat === 'number' && typeof l.lng === 'number' ? l : null;
+    } catch {
+        return null;
+    }
+}
+
 function App() {
     const initial = useRef(parseUrl()).current;
-    const [coords, setCoords] = useState(initial.coords || DEFAULT_COORDS);
+    const savedLoc = useRef(loadLoc()).current;
+    const [coords, setCoords] = useState(initial.coords || (savedLoc ? { lat: savedLoc.lat, lng: savedLoc.lng } : DEFAULT_COORDS));
+    // Honest location state: is this the user's real position, and what's it called?
+    const [geolocated, setGeolocated] = useState(!initial.coords && !!savedLoc);
+    const [locLabel, setLocLabel] = useState(
+        initial.coords ? '' : (savedLoc ? savedLoc.label : 'Istanbul')
+    );
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -137,11 +154,15 @@ function App() {
         }
         setLocating(true);
         navigator.geolocation.getCurrentPosition(
-            (pos) => {
+            async (pos) => {
                 const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                 setCoords(c);
+                setGeolocated(true);
                 setLocating(false);
                 runSearch(lastSearch.query, lastSearch.category, c);
+                const label = await reverseGeocode(c.lat, c.lng);
+                setLocLabel(label || '');
+                localStorage.setItem(LOC_KEY, JSON.stringify({ ...c, label: label || '' }));
             },
             () => {
                 setLocating(false);
@@ -151,9 +172,12 @@ function App() {
         );
     };
 
-    const handleSearchArea = (c) => {
+    const handleSearchArea = async (c) => {
         setCoords(c);
+        setGeolocated(false);
         runSearch(lastSearch.query, lastSearch.category, c);
+        const label = await reverseGeocode(c.lat, c.lng);
+        if (label) setLocLabel(label);
     };
 
     // Sync favorites with the server on login (merge guest favorites up), revert to local on logout
@@ -267,6 +291,8 @@ function App() {
                         onSearchArea={handleSearchArea}
                         onUseLocation={handleUseLocation}
                         locating={locating}
+                        locLabel={locLabel}
+                        geolocated={geolocated}
                         turnstileEnabled={turnstileEnabled}
                         hasTurnstileToken={!!turnstileToken}
                         onTurnstileToken={setTurnstileToken}

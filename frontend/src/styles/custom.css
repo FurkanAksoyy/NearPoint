@@ -710,6 +710,25 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .fav-btn { padding: 12px; margin: -12px; } /* 44px hit area without visual bulk */
 
+/* ---------- Location bar ---------- */
+.loc-bar {
+    display: flex; align-items: center; gap: 7px;
+    margin: 0 0 12px; padding: 9px 12px;
+    border: 1px solid var(--line); border-radius: var(--r-input);
+    background: var(--surface); color: var(--body); font-size: 0.86rem;
+}
+.loc-bar svg { color: var(--accent-strong); flex: 0 0 auto; }
+.loc-bar strong { color: var(--ink); font-weight: 700; }
+.loc-bar.geo { background: var(--accent-soft); border-color: transparent; }
+.loc-text { flex: 1; min-width: 0; }
+.loc-cta {
+    display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto;
+    border: none; background: var(--accent-strong); color: #fff;
+    border-radius: 999px; padding: 5px 11px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+}
+.loc-cta:hover:not(:disabled) { background: var(--accent); }
+.loc-cta:disabled { opacity: 0.6; }
+
 /* ---------- Mood / vibe row ---------- */
 .mood-row { margin: 2px 0 14px; }
 .mood-lead { display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
