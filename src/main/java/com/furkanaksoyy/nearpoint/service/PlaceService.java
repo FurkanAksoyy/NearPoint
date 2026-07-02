@@ -71,7 +71,10 @@ public class PlaceService {
         return placeRepository.findAll(pageable).map(placeMapper::toResponse);
     }
 
-    /** Search-as-you-type suggestions. Returns empty for very short input. */
+    /** Search-as-you-type suggestions. Cached (short input is skipped) to cut per-keystroke Google cost. */
+    @Cacheable(cacheNames = "autocomplete",
+            key = "T(com.furkanaksoyy.nearpoint.util.SearchKey).of(#input, null, #latitude, #longitude, 0)",
+            unless = "#result == null || #result.isEmpty()")
     @SuppressWarnings("unchecked")
     public List<AutocompleteSuggestion> autocomplete(String input, Double latitude, Double longitude) {
         if (input == null || input.trim().length() < 2) {

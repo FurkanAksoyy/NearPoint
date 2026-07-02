@@ -15,7 +15,7 @@ spring:
     baseline-on-migrate: true       # existing DB already has `places` but no history table
     baseline-version: 1
   cache:
-    cache-names: nearbyPlaces,placeDetails
+    cache-names: nearbyPlaces,placeDetails,autocomplete
     caffeine:
       spec: maximumSize=1000,expireAfterWrite=10m
   mvc:

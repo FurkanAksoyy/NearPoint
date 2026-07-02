@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Drawer } from 'vaul';
-import { MagnifyingGlass, Warning } from '@phosphor-icons/react';
+import { MagnifyingGlass, Warning, Shuffle } from '@phosphor-icons/react';
 import SearchBar from '../components/SearchBar';
 import FilterControls from '../components/FilterControls';
 import MoodRow from '../components/MoodRow';
@@ -101,7 +101,14 @@ const Home = ({
 
             <div className="results-head">
                 <h2 className="text-capitalize">{title}</h2>
-                {!loading && <span className="count" role="status" aria-live="polite">{list.length} {t('home.places')}</span>}
+                <div className="rh-right">
+                    {!loading && list.length > 1 && (
+                        <button className="surprise-btn" onClick={() => openDetail(list[Math.floor(Math.random() * list.length)])}>
+                            <Shuffle size={15} weight="bold" /> {t('surprise')}
+                        </button>
+                    )}
+                    {!loading && <span className="count" role="status" aria-live="polite">{list.length} {t('home.places')}</span>}
+                </div>
             </div>
 
             {!loading && !error && !lastSearch.query && (
