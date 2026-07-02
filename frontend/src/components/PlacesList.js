@@ -15,7 +15,11 @@ const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t })
     return (
         <div
             className={`place-card ${hovered ? 'hovered' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`${t('a11y.open_place')} ${place.name}`}
             onClick={() => onSelect(place)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(place); } }}
             onMouseEnter={() => onHover(place.id)}
             onMouseLeave={() => onHover(null)}
         >
@@ -40,7 +44,7 @@ const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t })
                     <button
                         className={`fav-btn ${isFav ? 'on' : ''}`}
                         onClick={(e) => { e.stopPropagation(); onToggleFav(place); }}
-                        aria-label={isFav ? 'Remove from favorites' : 'Save to favorites'}
+                        aria-label={isFav ? t('a11y.fav_remove') : t('a11y.fav_add')}
                     >
                         <Heart size={19} weight={isFav ? 'fill' : 'regular'} />
                     </button>

@@ -100,7 +100,7 @@ const Home = ({
 
             <div className="results-head">
                 <h2 className="text-capitalize">{title}</h2>
-                {!loading && <span className="count">{list.length} {t('home.places')}</span>}
+                {!loading && <span className="count" role="status" aria-live="polite">{list.length} {t('home.places')}</span>}
             </div>
 
             {!loading && !error && !lastSearch.query && (
@@ -111,8 +111,8 @@ const Home = ({
                 <FilterControls filters={filters} onChange={setFilters} />
             )}
 
-            {loading && <Skeletons />}
-            {error && <div className="pane-error"><Warning size={16} weight="fill" /> {t(error)}</div>}
+            {loading && <div aria-busy="true"><Skeletons /></div>}
+            {error && <div className="pane-error" role="alert"><Warning size={16} weight="fill" /> {t(error)}</div>}
 
             {!loading && !error && list.length > 0 && (
                 <PlacesList

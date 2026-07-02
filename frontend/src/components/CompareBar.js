@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Scales, X, Trophy } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
@@ -27,6 +27,13 @@ const CompareBar = () => {
     const [open, setOpen] = useState(false);
     const [winner, setWinner] = useState(null);
 
+    useEffect(() => {
+        if (!open) return undefined;
+        const h = (e) => { if (e.key === 'Escape') setOpen(false); };
+        window.addEventListener('keydown', h);
+        return () => window.removeEventListener('keydown', h);
+    }, [open]);
+
     if (!compare.length) return null;
 
     return (
@@ -48,7 +55,7 @@ const CompareBar = () => {
 
             {open && createPortal(
                 <div className="cmp-overlay" onClick={() => setOpen(false)}>
-                    <div className="cmp-modal" onClick={(e) => e.stopPropagation()}>
+                    <div className="cmp-modal" role="dialog" aria-modal="true" aria-label={t('compare.title')} onClick={(e) => e.stopPropagation()}>
                         <div className="cmp-modal-head">
                             <h3>{t('compare.title')}</h3>
                             <button className="guided-x" onClick={() => setOpen(false)} aria-label="Close"><X size={18} /></button>

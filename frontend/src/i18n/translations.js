@@ -157,6 +157,9 @@ export const translations = {
         'a11y.theme': 'Toggle dark mode',
         'a11y.lang': 'Change language',
         'a11y.notify': 'Enable notifications',
+        'a11y.fav_add': 'Save to favorites',
+        'a11y.fav_remove': 'Remove from favorites',
+        'a11y.open_place': 'Open details for',
 
         'seo.default_title': 'NearPoint — Discover places near you',
         'seo.default_desc': 'Find restaurants, cafes, hotels and more near you — ratings, hours, price and directions on a live map.',
@@ -342,6 +345,9 @@ export const translations = {
         'a11y.theme': 'Karanlık modu değiştir',
         'a11y.lang': 'Dili değiştir',
         'a11y.notify': 'Bildirimleri aç',
+        'a11y.fav_add': 'Favorilere ekle',
+        'a11y.fav_remove': 'Favorilerden çıkar',
+        'a11y.open_place': 'Detayları aç:',
 
         'seo.default_title': 'NearPoint — Yakınındaki yerleri keşfet',
         'seo.default_desc': 'Yakınındaki restoran, kafe, otel ve daha fazlasını bul — puan, saat, fiyat ve yol tarifi canlı haritada.',

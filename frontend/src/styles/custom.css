@@ -6,17 +6,21 @@
     /* Neutrals (cool slate) */
     --ink: #0F172A;
     --body: #475569;
-    --muted: #94A3B8;
+    --muted: #64748B;        /* text (~4.7:1 on white — WCAG AA) */
+    --muted-soft: #94A3B8;   /* decoration only (separators, faint icons) */
     --line: #E2E8F0;
     --line-soft: #EEF2F7;
     --surface: #FFFFFF;
+    --surface-raised: #FFFFFF;
+    --surface-sunken: #F1F5F9;
     --bg: #F8FAFC;
 
     /* ONE accent — Ember */
     --accent: #E8552B;
+    --accent-hover: #D0481F;
     --accent-strong: #C2431F;
     --accent-soft: #FCEBE3;
-    --accent-ring: rgba(232, 85, 43, 0.30);
+    --accent-ring: rgba(232, 85, 43, 0.34);
 
     /* Signals */
     --open: #15803D;
@@ -46,10 +50,13 @@
 [data-theme="dark"] {
     --ink: #F1F5F9;
     --body: #CBD5E1;
-    --muted: #7C8BA1;
+    --muted: #94A3B8;
+    --muted-soft: #6B7A91;
     --line: #24324A;
     --line-soft: #1B2740;
     --surface: #131C2E;
+    --surface-raised: #1B2740;
+    --surface-sunken: #0B1220;
     --bg: #0B1220;
 
     --accent-soft: rgba(232, 85, 43, 0.16);
@@ -68,6 +75,23 @@
 [data-theme="dark"] .form-select { background: var(--surface); color: var(--ink); }
 
 html { background: var(--bg); }
+
+/* Accessible keyboard focus — visible for keyboard users, unobtrusive for mouse/touch */
+:where(a, button, input, select, textarea, [tabindex], .place-card, .best-card,
+    .pill, .chip, .mood-chip, .np-icon-btn, .suggest-item, .trip-add-item):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Respect reduced-motion for all transitions/animations, not just the shimmer */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
 
 * { box-sizing: border-box; }
 
@@ -462,8 +486,8 @@ h1, h2, h3, h4, h5, .fw-display {
     display: flex; align-items: center; justify-content: center; padding: 16px;
 }
 .cmp-modal {
-    background: var(--bg); border-radius: 16px; max-width: 720px; width: 100%;
-    max-height: 88vh; overflow-y: auto; padding: 18px;
+    background: var(--surface-raised); border-radius: 16px; max-width: 720px; width: 100%;
+    max-height: 88vh; overflow-y: auto; padding: 18px; box-shadow: var(--shadow-lg);
 }
 .cmp-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .cmp-modal-head h3 { margin: 0; font-size: 1.25rem; }
