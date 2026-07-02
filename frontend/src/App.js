@@ -279,7 +279,7 @@ function App() {
                 <Route path="/tours" element={
                     <ToursPage coords={coords} favorites={favIds} onToggleFav={toggleFav} onCoords={setCoords} />
                 } />
-                <Route path="/trip" element={<TripPage />} />
+                <Route path="/trip" element={<TripPage savedPlaces={favorites} />} />
                 <Route path="/near/:city/:category" element={
                     <NearPage favorites={favIds} onToggleFav={toggleFav} />
                 } />

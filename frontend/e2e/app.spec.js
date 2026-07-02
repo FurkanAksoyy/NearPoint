@@ -177,6 +177,27 @@ test('trip planner: add a place, see it on /trip with a route link', async ({ pa
     await page.screenshot({ path: testInfo.outputPath('trip.png'), fullPage: false });
 });
 
+test('guided walk: full-screen story player steps through the trip', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await page.goto('/');
+    await page.waitForTimeout(800);
+    const places = await page.evaluate(async () => {
+        const r = await fetch('http://localhost:8070/api/places/nearby?latitude=41.037&longitude=28.985&radius=2000&query=hamburger');
+        return (await r.json()).slice(0, 3);
+    });
+    await page.evaluate((p) => localStorage.setItem('np_trip', JSON.stringify(p)), places);
+
+    await page.goto('/trip');
+    await expect(page.locator('.trip-leg').first()).toBeVisible();
+    await expect(page.locator('.route-summary')).toContainText('total');
+
+    await page.locator('.btn-ember').filter({ hasText: /guided/i }).click();
+    await expect(page.locator('.guided')).toBeVisible();
+    await expect(page.locator('.guided-count')).toContainText('1');
+    await page.locator('.guided-foot .btn-ember').click();
+    await expect(page.locator('.guided-count')).toContainText('2');
+});
+
 test('tours page: numbered walking route with a start button', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
 

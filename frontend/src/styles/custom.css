@@ -767,6 +767,88 @@ h1, h2, h3, h4, h5, .fw-display {
 .trip-icon:hover:not(:disabled) { background: var(--line-soft); color: var(--ink); }
 .trip-icon:disabled { opacity: 0.4; cursor: not-allowed; }
 
+.trip-name-input {
+    width: 100%; border: none; background: transparent; padding: 0;
+    font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; letter-spacing: -0.02em;
+    color: var(--ink); font-family: inherit;
+}
+.trip-name-input::placeholder { color: var(--line); }
+.trip-name-input:focus { outline: none; }
+.trip-list { position: relative; }
+.trip-leg {
+    display: flex; align-items: center; gap: 7px;
+    margin: -6px 0 -6px 18px; padding: 6px 0 6px 22px;
+    border-left: 2px dashed var(--line); color: var(--muted);
+    font-size: 0.82rem; font-weight: 600;
+}
+.trip-leg svg { color: var(--accent); }
+.trip-add { margin-top: 18px; }
+.trip-add-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.trip-add-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: var(--r-input);
+    background: var(--surface); cursor: pointer; color: var(--body);
+}
+.trip-add-item:hover { border-color: var(--accent); background: var(--accent-soft); }
+.trip-add-item .add-ic { color: var(--accent-strong); flex: 0 0 auto; }
+
+/* ---------- Guided walk (full-screen player) ---------- */
+.guided {
+    position: fixed; inset: 0; z-index: 3000;
+    background: var(--bg); display: flex; flex-direction: column;
+}
+.guided-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px calc(14px + env(safe-area-inset-top, 0px));
+    border-bottom: 1px solid var(--line);
+}
+.guided-x {
+    display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto;
+    border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.guided-bar { flex: 1; height: 6px; border-radius: 999px; background: var(--line-soft); overflow: hidden; }
+.guided-bar-fill { height: 100%; background: var(--accent-strong); border-radius: 999px; transition: width .3s ease; }
+.guided-count { font-size: 0.82rem; font-weight: 700; color: var(--muted); flex: 0 0 auto; }
+.guided-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.guided-hero {
+    position: relative; height: 300px; background-size: cover; background-position: center;
+    background-color: var(--line-soft);
+}
+.guided-hero.placeholder { display: grid; place-items: center; color: var(--muted); }
+.guided-num {
+    position: absolute; left: 20px; bottom: -18px; width: 40px; height: 40px;
+    border-radius: 999px; background: var(--accent-strong); color: #fff;
+    display: grid; place-items: center; font-weight: 800; font-size: 1.1rem;
+    border: 4px solid var(--bg);
+}
+.guided-content { max-width: 640px; margin: 0 auto; padding: 30px 20px 40px; }
+.guided-content h2 { font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 8px; }
+.guided-meta { margin-bottom: 16px; }
+.guided-meta .rs { display: inline-flex; align-items: center; gap: 4px; }
+.guided-why { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 0 0 12px; }
+.guided-hook { color: var(--body); line-height: 1.6; margin: 0 0 16px; }
+.guided-quote {
+    position: relative; margin: 16px 0 0; padding: 16px 18px;
+    background: var(--accent-soft); border-radius: var(--r-card); color: var(--ink);
+    font-size: 0.98rem; line-height: 1.6;
+}
+.guided-quote > svg { color: var(--accent); margin-bottom: 6px; }
+.guided-quote span { display: block; }
+.guided-quote cite { display: block; margin-top: 8px; color: var(--muted); font-style: normal; font-weight: 600; font-size: 0.85rem; }
+.guided-foot {
+    display: flex; gap: 8px; align-items: center;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line); background: var(--surface);
+}
+.guided-foot .btn-ghost:first-child { flex: 0 0 auto; }
+.guided-foot .btn-ghost:nth-child(2) { flex: 1; justify-content: center; }
+.guided-foot .btn-ember { flex: 0 0 auto; margin-left: auto; }
+.guided-foot .leg-hint { color: var(--muted); font-weight: 500; }
+@media (max-width: 560px) {
+    .guided-foot .btn-ghost:nth-child(2) .leg-hint { display: none; }
+    .guided-hero { height: 240px; }
+}
+
 /* ---------- Near / SEO landing page ---------- */
 .near-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
 .near-crumbs { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; flex-wrap: wrap; }
