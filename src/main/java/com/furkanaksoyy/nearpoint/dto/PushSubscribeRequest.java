@@ -1,0 +1,10 @@
+package com.furkanaksoyy.nearpoint.dto;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record PushSubscribeRequest(
+        @NotBlank String endpoint,
+        @NotBlank String p256dh,
+        @NotBlank String auth
+) {
+}

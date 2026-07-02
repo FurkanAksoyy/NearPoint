@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path } from '@phosphor-icons/react';
+import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Bell, BellRinging } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import About from './pages/About';
 import Saved from './pages/Saved';
@@ -12,6 +12,7 @@ import Logo from './components/Logo';
 import AuthModal from './components/AuthModal';
 import { useSettings } from './context/AppSettings';
 import { useAuth } from './context/Auth';
+import { pushSupported, enablePush } from './utils/push';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 const DEFAULT_COORDS = { lat: 41.0370, lng: 28.9851 }; // Istanbul
@@ -54,6 +55,17 @@ function App() {
     const { t, theme, toggleTheme, lang, toggleLang } = useSettings();
     const { isAuthed, user, logout } = useAuth();
     const [authOpen, setAuthOpen] = useState(false);
+    const [pushOn, setPushOn] = useState(() => typeof Notification !== 'undefined' && Notification.permission === 'granted');
+    const [pushBusy, setPushBusy] = useState(false);
+
+    const handleEnablePush = async () => {
+        setPushBusy(true);
+        try {
+            await enablePush();
+            setPushOn(true);
+        } catch { /* denied/unsupported */ }
+        finally { setPushBusy(false); }
+    };
     const turnstileEnabled = !!process.env.REACT_APP_TURNSTILE_SITE_KEY;
     const favIds = useMemo(() => new Set(favorites.map((f) => f.placeId)), [favorites]);
 
@@ -219,6 +231,11 @@ function App() {
                         <button className="np-lang" onClick={toggleLang} aria-label={t('a11y.lang')} title={t('a11y.lang')}>
                             {lang.toUpperCase()}
                         </button>
+                        {pushSupported() && (
+                            <button className={`np-icon-btn ${pushOn ? 'on' : ''}`} onClick={handleEnablePush} disabled={pushBusy || pushOn} aria-label={t('a11y.notify')} title={t('a11y.notify')}>
+                                {pushOn ? <BellRinging size={18} weight="fill" color="#E8552B" /> : <Bell size={18} />}
+                            </button>
+                        )}
                         <button className="np-icon-btn" onClick={toggleTheme} aria-label={t('a11y.theme')} title={t('a11y.theme')}>
                             {theme === 'dark' ? <Sun size={18} weight="fill" /> : <Moon size={18} weight="fill" />}
                         </button>

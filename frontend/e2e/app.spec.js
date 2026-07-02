@@ -46,7 +46,7 @@ test('dark mode + Top Picks render', async ({ page }, testInfo) => {
 
     await page.goto('/');
     // Toggle dark mode via the navbar theme button (Moon/Sun)
-    await page.locator('.np-icon-btn').click();
+    await page.locator('button[aria-label="Toggle dark mode"]').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await page.screenshot({ path: testInfo.outputPath('dark.png'), fullPage: false });
 
@@ -122,6 +122,17 @@ test('place detail drawer loads rich details + reviews', async ({ page }, testIn
     await expect(page.locator('.detail-drawer')).toBeVisible();
     await expect(page.locator('.review').first()).toBeVisible({ timeout: 15000 });
     await page.screenshot({ path: testInfo.outputPath('detail.png'), fullPage: false });
+});
+
+test('notifications bell + push public key are available', async ({ page, context }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await context.grantPermissions(['notifications']);
+    await page.goto('/');
+    await expect(page.locator('button[aria-label="Enable notifications"]')).toBeVisible();
+    // backend exposes the VAPID public key for subscription
+    const res = await page.request.get('http://localhost:8070/api/push/public-key');
+    expect(res.status()).toBe(200);
+    expect((await res.json()).publicKey).toBeTruthy();
 });
 
 test('PWA: installable manifest + active service worker', async ({ page }, testInfo) => {

@@ -84,6 +84,7 @@ export const translations = {
 
         'a11y.theme': 'Toggle dark mode',
         'a11y.lang': 'Change language',
+        'a11y.notify': 'Enable notifications',
 
         'seo.default_title': 'NearPoint — Discover places near you',
         'seo.default_desc': 'Find restaurants, cafes, hotels and more near you — ratings, hours, price and directions on a live map.',
@@ -196,6 +197,7 @@ export const translations = {
 
         'a11y.theme': 'Karanlık modu değiştir',
         'a11y.lang': 'Dili değiştir',
+        'a11y.notify': 'Bildirimleri aç',
 
         'seo.default_title': 'NearPoint — Yakınındaki yerleri keşfet',
         'seo.default_desc': 'Yakınındaki restoran, kafe, otel ve daha fazlasını bul — puan, saat, fiyat ve yol tarifi canlı haritada.',

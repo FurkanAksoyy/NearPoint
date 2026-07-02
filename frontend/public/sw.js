@@ -15,6 +15,34 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
+// Web push: show the notification
+self.addEventListener('push', (event) => {
+    let data = { title: 'NearPoint', body: 'Discover places near you.', url: '/' };
+    try { if (event.data) data = { ...data, ...event.data.json() }; } catch (e) { /* keep defaults */ }
+    event.waitUntil(
+        self.registration.showNotification(data.title, {
+            body: data.body,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            data: { url: data.url || '/' },
+        })
+    );
+});
+
+// Focus/open the app when a notification is clicked
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const url = (event.notification.data && event.notification.data.url) || '/';
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+            for (const client of list) {
+                if ('focus' in client) return client.focus();
+            }
+            return self.clients.openWindow(url);
+        })
+    );
+});
+
 self.addEventListener('fetch', (event) => {
     const req = event.request;
     if (req.method !== 'GET') return;
