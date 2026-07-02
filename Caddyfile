@@ -1,4 +1,8 @@
-# Automatic HTTPS via Let's Encrypt. DOMAIN comes from the .env file.
+# Automatic HTTPS via Let's Encrypt. DOMAIN + ACME_EMAIL come from the .env file.
+{
+	email {$ACME_EMAIL}
+}
+
 {$DOMAIN} {
 	# Social unfurlers (WhatsApp/Telegram/Twitter/…) can't run JS, so serve them
 	# server-rendered Open Graph HTML for shared polls & lists. Humans still get the SPA.
