@@ -80,6 +80,9 @@ export const translations = {
         'filter.open_now': 'Open now',
         'filter.filters': 'Filters',
         'filter.any_price': 'Any price',
+        'filter.hidden_gems': 'Hidden gems',
+        'filter.hidden_gems_hint': 'Highly rated, not yet crowded',
+        'mood.label': 'In the mood for…',
 
         'card.open': 'Open now',
         'card.closed': 'Closed',
@@ -232,6 +235,9 @@ export const translations = {
         'filter.open_now': 'Şu an açık',
         'filter.filters': 'Filtreler',
         'filter.any_price': 'Tüm fiyatlar',
+        'filter.hidden_gems': 'Gizli cevherler',
+        'filter.hidden_gems_hint': 'Yüksek puanlı, henüz kalabalık değil',
+        'mood.label': 'Canın ne çekiyor?',
 
         'card.open': 'Şu an açık',
         'card.closed': 'Kapalı',

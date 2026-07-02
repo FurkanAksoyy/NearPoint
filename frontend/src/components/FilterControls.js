@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, SlidersHorizontal } from '@phosphor-icons/react';
+import { Clock, Diamond } from '@phosphor-icons/react';
 import { useSettings } from '../context/AppSettings';
 
 const FilterControls = ({ filters, onChange }) => {
@@ -36,9 +36,14 @@ const FilterControls = ({ filters, onChange }) => {
                 <Clock size={15} weight={filters.openNowOnly ? 'fill' : 'regular'} /> {t('filter.open_now')}
             </button>
 
-            <span className="filter-toggle" style={{ borderColor: 'transparent', cursor: 'default', color: 'var(--muted)' }}>
-                <SlidersHorizontal size={15} /> {t('filter.filters')}
-            </span>
+            <button
+                type="button"
+                className={`filter-toggle ${filters.hiddenGems ? 'active' : ''}`}
+                onClick={() => set({ hiddenGems: !filters.hiddenGems })}
+                title={t('filter.hidden_gems_hint')}
+            >
+                <Diamond size={15} weight={filters.hiddenGems ? 'fill' : 'regular'} /> {t('filter.hidden_gems')}
+            </button>
         </div>
     );
 };

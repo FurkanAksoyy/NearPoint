@@ -177,6 +177,22 @@ test('trip planner: add a place, see it on /trip with a route link', async ({ pa
     await page.screenshot({ path: testInfo.outputPath('trip.png'), fullPage: false });
 });
 
+test('discovery: mood chips run a vibe search + hidden gems toggles', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await page.goto('/');
+    await page.locator('.place-card').first().waitFor({ timeout: 20000 });
+    await expect(page.locator('.mood-row')).toBeVisible();
+
+    const gems = page.locator('.filter-toggle').filter({ hasText: /gems/i });
+    await gems.click();
+    await expect(gems).toHaveClass(/active/);
+    await gems.click();
+
+    await page.locator('.mood-chip').first().click();
+    await page.waitForTimeout(2500);
+    await expect(page.locator('.results-head h2')).toContainText('cozy', { ignoreCase: true });
+});
+
 test('guided walk: full-screen story player steps through the trip', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
     await page.goto('/');

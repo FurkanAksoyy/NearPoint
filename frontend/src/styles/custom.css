@@ -710,6 +710,22 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .fav-btn { padding: 12px; margin: -12px; } /* 44px hit area without visual bulk */
 
+/* ---------- Mood / vibe row ---------- */
+.mood-row { margin: 2px 0 14px; }
+.mood-lead { display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+.mood-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.mood-chips::-webkit-scrollbar { display: none; }
+.mood-chip {
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: 0 0 auto;
+    height: 36px; padding: 0 13px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--ink); font-weight: 600; font-size: 0.86rem; cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+}
+.mood-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+.mood-chip:active { transform: scale(0.97); }
+.mood-emoji { font-size: 1rem; line-height: 1; }
+
 /* ---------- Route map (tours / trip / saved) ---------- */
 .route-map {
     width: 100%;
