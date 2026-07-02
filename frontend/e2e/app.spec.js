@@ -177,6 +177,23 @@ test('trip planner: add a place, see it on /trip with a route link', async ({ pa
     await page.screenshot({ path: testInfo.outputPath('trip.png'), fullPage: false });
 });
 
+test('been-there: check-ins show on a personal map with stats', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await page.goto('/');
+    await page.waitForTimeout(800);
+    const places = await page.evaluate(async () => {
+        const r = await fetch('http://localhost:8070/api/places/nearby?latitude=41.037&longitude=28.985&radius=2000');
+        return (await r.json()).slice(0, 4);
+    });
+    await page.evaluate((p) => localStorage.setItem('np_visited', JSON.stringify(p)), places);
+
+    await page.goto('/saved');
+    await page.locator('.saved-tab').filter({ hasText: /Been/i }).click();
+    await expect(page.locator('.visited-stats')).toBeVisible();
+    await expect(page.locator('.vs-count')).toContainText('4');
+    await expect(page.locator('.route-map')).toBeVisible();
+});
+
 test('discovery: mood chips run a vibe search + hidden gems toggles', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
     await page.goto('/');

@@ -109,6 +109,11 @@ export const translations = {
         'saved.empty': 'No saved places yet. Tap the heart on any place to save it here.',
         'saved.discover': 'Discover places',
         'saved.plan': 'Plan a trip',
+        'saved.tab_saved': 'Saved',
+        'saved.tab_visited': 'Been there',
+        'visited.count': 'visited',
+        'visited.empty': 'No check-ins yet. Open a place and tap the check mark to log a visit.',
+        'detail.been': 'I’ve been here',
 
         'map.search_area': 'Search this area',
         'map.list': 'List',
@@ -269,6 +274,11 @@ export const translations = {
         'saved.empty': 'Henüz kayıtlı yer yok. Bir yerin kalbine dokunarak buraya kaydet.',
         'saved.discover': 'Yerleri keşfet',
         'saved.plan': 'Gezi oluştur',
+        'saved.tab_saved': 'Kayıtlı',
+        'saved.tab_visited': 'Gittiğim yerler',
+        'visited.count': 'gidilen',
+        'visited.empty': 'Henüz işaretleme yok. Bir yeri aç ve ziyareti kaydetmek için onay işaretine dokun.',
+        'detail.been': 'Buraya gittim',
 
         'map.search_area': 'Bu bölgede ara',
         'map.list': 'Liste',
