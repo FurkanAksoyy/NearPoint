@@ -49,6 +49,7 @@ export const translations = {
         'filter.any_rating': 'Any rating',
         'filter.open_now': 'Open now',
         'filter.filters': 'Filters',
+        'filter.any_price': 'Any price',
 
         'card.open': 'Open now',
         'card.closed': 'Closed',
@@ -160,6 +161,7 @@ export const translations = {
         'filter.any_rating': 'Tüm puanlar',
         'filter.open_now': 'Şu an açık',
         'filter.filters': 'Filtreler',
+        'filter.any_price': 'Tüm fiyatlar',
 
         'card.open': 'Şu an açık',
         'card.closed': 'Kapalı',

@@ -8,7 +8,7 @@ import MapContainer from '../components/MapContainer';
 import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
 import Seo from '../components/Seo';
 import { distanceMeters } from '../utils/geo';
-import { CATEGORIES } from '../utils/places';
+import { CATEGORIES, priceLevelNum } from '../utils/places';
 import { websiteJsonLd, itemListJsonLd } from '../utils/jsonld';
 import useMediaQuery from '../utils/useMediaQuery';
 import { useSettings } from '../context/AppSettings';
@@ -37,7 +37,7 @@ const Home = ({
 }) => {
     const { t, lang } = useSettings();
     const isMobile = useMediaQuery('(max-width: 900px)');
-    const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false });
+    const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false, maxPrice: 0 });
     const [hoveredId, setHoveredId] = useState(null);
     const [selected, setSelected] = useState(null);
     const [showDrawer, setShowDrawer] = useState(false);
@@ -59,6 +59,10 @@ const Home = ({
         }));
         if (filters.openNowOnly) items = items.filter((p) => p.openNow === true);
         if (filters.minRating > 0) items = items.filter((p) => (p.rating || 0) >= filters.minRating);
+        if (filters.maxPrice > 0) items = items.filter((p) => {
+            const n = priceLevelNum(p.priceLevel);
+            return n === 0 || n <= filters.maxPrice; // keep unknown-price places
+        });
         if (filters.sort === 'rating') items = [...items].sort((a, b) => (b.rating || 0) - (a.rating || 0));
         else if (filters.sort === 'distance') items = [...items].sort((a, b) => (a._distance ?? 1e12) - (b._distance ?? 1e12));
         return items;

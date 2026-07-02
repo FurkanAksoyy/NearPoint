@@ -21,6 +21,13 @@ const FilterControls = ({ filters, onChange }) => {
                 <option value="4.5">4.5+ ★</option>
             </select>
 
+            <select value={filters.maxPrice} onChange={(e) => set({ maxPrice: Number(e.target.value) })} aria-label={t('filter.any_price')}>
+                <option value="0">{t('filter.any_price')}</option>
+                <option value="1">$</option>
+                <option value="2">$$</option>
+                <option value="3">$$$</option>
+            </select>
+
             <button
                 type="button"
                 className={`filter-toggle ${filters.openNowOnly ? 'active' : ''}`}
