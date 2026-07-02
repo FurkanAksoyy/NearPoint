@@ -1,5 +1,16 @@
 # Automatic HTTPS via Let's Encrypt. DOMAIN comes from the .env file.
 {$DOMAIN} {
+	# Social unfurlers (WhatsApp/Telegram/Twitter/…) can't run JS, so serve them
+	# server-rendered Open Graph HTML for shared polls & lists. Humans still get the SPA.
+	@unfurl {
+		path /poll/* /s/*
+		header_regexp User-Agent (?i)(facebookexternalhit|twitterbot|whatsapp|telegrambot|slackbot|discordbot|linkedinbot|pinterest|redditbot|googlebot|bingbot|embedly|vkshare|skypeuripreview|whatsapp)
+	}
+	handle @unfurl {
+		rewrite * /og{uri}
+		reverse_proxy backend:8070
+	}
+
 	# Backend API
 	handle /api/* {
 		reverse_proxy backend:8070

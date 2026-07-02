@@ -2,8 +2,9 @@
 User-agent: *
 Allow: /
 
-# Avoid indexing noisy filter/sort permutations
+# Avoid indexing noisy filter/sort permutations and the private admin page
 Disallow: /*?*sort=
+Disallow: /admin
 
-# Update the host to your production domain
-Sitemap: https://near-point.vercel.app/sitemap.xml
+# Update the host to your production domain before deploy
+Sitemap: https://near-point.app/sitemap.xml

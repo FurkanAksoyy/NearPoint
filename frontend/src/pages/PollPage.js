@@ -98,6 +98,13 @@ const PollPage = () => {
             </ul>
 
             <p className="poll-total">{total} {t('poll.total')}</p>
+
+            <div className="poll-cta">
+                {myVote && <div className="poll-cta-thanks"><Check size={15} weight="bold" /> {t('poll.voted_thanks')}</div>}
+                <div className="poll-cta-title">{t('poll.make_own_title')}</div>
+                <p className="poll-cta-desc">{t('poll.make_own_desc')}</p>
+                <Link className="btn-ember" to="/"><UsersThree size={16} weight="fill" /> {t('poll.make_own')}</Link>
+            </div>
         </div>
     );
 };

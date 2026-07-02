@@ -538,6 +538,16 @@ h1, h2, h3, h4, h5, .fw-display {
 .poll-voted { display: inline-flex; align-items: center; gap: 5px; color: var(--open); font-weight: 700; font-size: 0.86rem; }
 .poll-count { color: var(--muted); font-weight: 700; font-size: 0.82rem; }
 .poll-total { text-align: center; color: var(--muted); font-weight: 600; margin-top: 16px; }
+.poll-cta {
+    margin-top: 24px; padding: 22px; text-align: center;
+    border: 1px solid var(--line); border-radius: var(--r-card); background: var(--surface-raised);
+}
+.poll-cta-thanks {
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px;
+    color: var(--open); font-weight: 700; font-size: 0.88rem;
+}
+.poll-cta-title { font-weight: 800; font-size: 1.15rem; color: var(--ink); }
+.poll-cta-desc { color: var(--body); font-size: 0.92rem; margin: 6px 0 14px; }
 .cmp-reason { margin-top: 12px; color: var(--body); font-size: 0.94rem; }
 .cmp-reason b { color: var(--accent-strong); }
 @media (max-width: 600px) { .cmp-thumb { height: 64px; } .cmp-col { padding: 8px; } }
