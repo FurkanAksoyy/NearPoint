@@ -37,6 +37,11 @@
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
     --shadow-md: 0 8px 24px -10px rgba(15, 23, 42, 0.22);
     --shadow-lg: 0 16px 40px -12px rgba(15, 23, 42, 0.28);
+    /* Material cards (soft ring + lift) and Ember-as-light shadows */
+    --shadow-card: 0 0 0 1px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 12px -6px rgba(15, 23, 42, 0.10);
+    --shadow-ember: 0 1px 2px rgba(194, 67, 31, 0.25), 0 6px 18px -6px rgba(232, 85, 43, 0.38);
+    /* Signature Ember panel gradient (warm ramp) */
+    --ember-grad: linear-gradient(132deg, #B03A18 0%, #D0481F 42%, #E8552B 78%, #F2683C 100%);
 
     --nav-h: 60px;
     --search-h: 132px;
@@ -67,6 +72,7 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 8px 24px -10px rgba(0, 0, 0, 0.6);
     --shadow-lg: 0 16px 40px -12px rgba(0, 0, 0, 0.7);
+    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 8px -4px rgba(0, 0, 0, 0.55);
 }
 [data-theme="dark"] .badge-closed { background: rgba(248, 113, 113, 0.16); }
 [data-theme="dark"] .pane-error { background: rgba(248, 113, 113, 0.14); color: #F87171; }
@@ -371,12 +377,15 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .results-head {
     display: flex;
-    align-items: baseline;
+    align-items: flex-start;
     justify-content: space-between;
-    margin: 4px 4px 12px;
+    gap: 12px;
+    margin: 4px 4px 14px;
 }
-.results-head h2 { font-size: 1.05rem; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rh-title { min-width: 0; }
+.results-head h2 { font-size: 1.35rem; letter-spacing: -0.025em; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .results-head .count { color: var(--muted); font-size: 0.85rem; }
+.surprise-btn { flex: 0 0 auto; margin-top: 3px; }
 
 /* ---------- Filter bar ---------- */
 .filter-bar {
@@ -404,17 +413,22 @@ h1, h2, h3, h4, h5, .fw-display {
     display: flex;
     gap: 12px;
     background: var(--surface);
-    border: 1px solid var(--line);
+    border: 1px solid transparent;
     border-radius: var(--r-card);
     padding: 10px;
     margin-bottom: 10px;
     cursor: pointer;
-    transition: border-color .15s, box-shadow .15s, transform .05s;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow .18s ease, transform .14s cubic-bezier(.2, .7, .2, 1);
+    animation: card-rise .34s cubic-bezier(.2, .7, .2, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 35ms);
 }
 .place-card:hover, .place-card.hovered {
-    border-color: #CBD5E1;
-    box-shadow: var(--shadow-md);
+    box-shadow: inset 3px 0 0 var(--accent), var(--shadow-md);
+    transform: translateY(-2px);
 }
+[data-theme="dark"] .place-card { background: var(--surface-raised); }
+@keyframes card-rise { from { opacity: 0; transform: translateY(8px); } }
 .place-card.hovered { border-color: var(--accent); }
 .place-thumb {
     flex: 0 0 96px;
@@ -604,11 +618,18 @@ h1, h2, h3, h4, h5, .fw-display {
 @media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
 
 /* ---------- Empty / error ---------- */
-.pane-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+.pane-state { text-align: center; padding: 56px 20px; color: var(--muted); }
 .pane-state .ic {
+    position: relative;
     width: 56px; height: 56px; border-radius: 999px;
     background: var(--accent-soft); color: var(--accent-strong);
-    display: grid; place-items: center; margin: 0 auto 14px;
+    display: grid; place-items: center; margin: 0 auto 22px;
+}
+/* Signature ripple rings behind the empty-state icon ("a point, nearby") */
+.pane-state .ic::before {
+    content: ''; position: absolute; inset: -34px; z-index: -1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='22' fill='none' stroke='%23E8552B' stroke-opacity='.34' stroke-width='1.3'/%3E%3Ccircle cx='60' cy='60' r='40' fill='none' stroke='%23E8552B' stroke-opacity='.2' stroke-width='1.3'/%3E%3Ccircle cx='60' cy='60' r='58' fill='none' stroke='%23E8552B' stroke-opacity='.09' stroke-width='1.3'/%3E%3C/svg%3E");
+    background-size: contain; background-repeat: no-repeat; background-position: center;
 }
 .pane-error {
     background: #FDECEC; color: var(--closed);
@@ -617,6 +638,7 @@ h1, h2, h3, h4, h5, .fw-display {
 
 /* ---------- Map markers (Ember pills via OverlayView) ---------- */
 .map-marker {
+    position: relative;
     transform: translate(-50%, -100%);
     background: var(--accent-strong);
     color: #fff;
@@ -635,11 +657,24 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .map-marker .star { color: #FFD9A8; }
 .map-marker.active, .map-marker:hover { background: var(--ink); transform: translate(-50%, -100%) scale(1.08); z-index: 5; }
-.map-marker.center {
-    background: #fff; color: var(--accent-strong); border-color: var(--accent-strong);
-    width: 16px; height: 16px; padding: 0; border-radius: 999px;
-    transform: translate(-50%, -50%);
+/* Stem so the pill anchors to its point */
+.map-marker::after {
+    content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: var(--accent-strong); border-bottom: 0;
 }
+.map-marker.active::after, .map-marker:hover::after { border-top-color: var(--ink); }
+
+/* Search-center marker — the logo's ripple identity */
+.center-pin { position: relative; transform: translate(-50%, -50%); width: 14px; height: 14px; }
+.center-pin .cp-dot {
+    position: absolute; inset: 0; border-radius: 999px;
+    background: var(--accent); border: 3px solid #fff; box-shadow: var(--shadow-ember);
+}
+.center-pin .cp-ring {
+    position: absolute; inset: -11px; border-radius: 999px; border: 2px solid var(--accent);
+    animation: ping 2.4s cubic-bezier(0, 0, .2, 1) infinite;
+}
+@keyframes ping { 0% { transform: scale(.5); opacity: .8; } 80%, 100% { transform: scale(1.6); opacity: 0; } }
 
 /* ---------- Detail drawer ---------- */
 .detail-drawer .offcanvas-header { border-bottom: 1px solid var(--line); }
@@ -673,6 +708,30 @@ h1, h2, h3, h4, h5, .fw-display {
     font-size: 0.9rem;
 }
 .btn-ember:hover { background: var(--accent-strong); color: #fff; }
+
+/* ---------- Design identity: Ember-as-light, motion, hierarchy ---------- */
+.btn-go, .btn-ember, .np-login, .loc-cta { box-shadow: var(--shadow-ember); }
+
+/* Universal tactile press (within MOTION-4) */
+.btn-ember, .btn-ghost, .btn-go, .btn-loc, .chip, .mood-chip, .filter-toggle, .np-login,
+.suggest-item, .cmp-chip, .tour-tab { transition: transform .1s ease, background .15s, border-color .15s, box-shadow .15s; }
+.btn-ember:active, .btn-ghost:active, .btn-go:active, .chip:active, .mood-chip:active,
+.filter-toggle:active, .np-login:active, .surprise-btn:active { transform: scale(0.97); }
+
+/* Heart save "pop" */
+@keyframes heart-pop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.fav-btn.on svg { animation: heart-pop .3s cubic-bezier(.34, 1.56, .64, 1); }
+
+/* Active chips use ink, not Ember — reserve Ember for actions */
+.chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+/* Editorial kicker above section headlines */
+.kicker {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.72rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent-strong); margin-bottom: 4px;
+}
+.kicker::after { content: ''; height: 1px; flex: 1; background: linear-gradient(90deg, var(--line), transparent); }
 .btn-ghost {
     display: inline-flex; align-items: center; gap: 7px;
     background: var(--surface); color: var(--ink); border: 1px solid var(--line);
@@ -836,7 +895,7 @@ h1, h2, h3, h4, h5, .fw-display {
 .featured-poll {
     display: flex; align-items: center; gap: 12px; margin: 0 0 12px; padding: 12px 14px;
     border-radius: var(--r-card); text-decoration: none;
-    background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff;
+    background: var(--ember-grad); color: #fff;
 }
 .featured-poll:hover { color: #fff; filter: brightness(1.03); }
 .fp-ic { width: 38px; height: 38px; border-radius: 10px; flex: 0 0 auto; display: grid; place-items: center; background: rgba(255, 255, 255, 0.2); }
@@ -1104,7 +1163,7 @@ h1, h2, h3, h4, h5, .fw-display {
 .passport {
     display: flex; align-items: center; gap: 14px;
     padding: 16px 18px; margin-bottom: 12px; border-radius: var(--r-card);
-    background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+    background: var(--ember-grad);
     color: #fff;
 }
 .passport-badge {
@@ -1139,7 +1198,7 @@ h1, h2, h3, h4, h5, .fw-display {
 .admin-poll-panel {
     display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
     padding: 16px 18px; border-radius: var(--r-card);
-    background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff;
+    background: var(--ember-grad); color: #fff;
 }
 .admin-poll-panel .app-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .admin-poll-panel .app-ic { width: 44px; height: 44px; border-radius: 12px; flex: 0 0 auto; display: grid; place-items: center; background: rgba(255, 255, 255, 0.2); }

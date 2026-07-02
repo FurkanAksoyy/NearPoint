@@ -6,7 +6,7 @@ import { isFeatured } from '../utils/affiliate';
 import { useSettings } from '../context/AppSettings';
 import { useCompare } from '../context/Compare';
 
-const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t }) => {
+const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t, idx = 0 }) => {
     const img = photoUrl(place.photoReference, 200);
     const price = formatPrice(place.priceLevel);
     const { inCompare, toggle: toggleCompare } = useCompare();
@@ -15,6 +15,7 @@ const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t })
     return (
         <div
             className={`place-card ${hovered ? 'hovered' : ''}`}
+            style={{ '--i': Math.min(idx, 7) }}
             role="button"
             tabIndex={0}
             aria-label={`${t('a11y.open_place')} ${place.name}`}
@@ -86,10 +87,11 @@ const PlacesList = ({ places, favorites, onToggleFav, onSelect, hoveredId, onHov
     const { t } = useSettings();
     return (
         <div>
-            {places.map((place) => (
+            {places.map((place, i) => (
                 <PlaceCard
                     key={place.id}
                     place={place}
+                    idx={i}
                     isFav={favorites.has(place.placeId)}
                     onToggleFav={onToggleFav}
                     onSelect={onSelect}

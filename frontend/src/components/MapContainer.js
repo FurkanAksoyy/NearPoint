@@ -6,17 +6,18 @@ import { useSettings } from '../context/AppSettings';
 
 const containerStyle = { width: '100%', height: '100%' };
 
-// Subtle desaturated map so Ember markers pop
+// Paper-warm map so Ember markers pop, with parks kept for neighbourhood shape
 const MAP_STYLE = [
-    { elementType: 'geometry', stylers: [{ color: '#f8fafc' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#f8fafc' }] },
+    { elementType: 'geometry', stylers: [{ color: '#f7f5f1' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#f7f5f1' }] },
     { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#e3ebdd' }, { visibility: 'on' }] },
     { featureType: 'transit', stylers: [{ visibility: 'off' }] },
     { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
     { featureType: 'road.arterial', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cfe3ee' }] },
-    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#eef3ea' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#d6e4ec' }] },
+    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#edeee6' }] },
 ];
 
 const MAP_STYLE_DARK = [
@@ -75,9 +76,12 @@ const MapContainer = ({ places, center, hoveredId, selectedId, onHover, onSelect
             }}
         >
 
-            {/* Search center */}
+            {/* Search center — the logo's ripple identity */}
             <OverlayViewF position={center} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
-                <div className="map-marker center" title="Search center" />
+                <div className="center-pin" title="Search center">
+                    <span className="cp-ring" />
+                    <span className="cp-dot" />
+                </div>
             </OverlayViewF>
 
             {places.map((p) => (
