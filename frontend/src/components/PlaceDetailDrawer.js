@@ -3,17 +3,19 @@ import { Offcanvas } from 'react-bootstrap';
 import axios from 'axios';
 import {
     Star, Heart, Clock, MapPin, ArrowSquareOut, NavigationArrow,
-    Phone, Globe, CircleNotch, ChatCircle, ShareNetwork, Check, Ticket,
+    Phone, Globe, CircleNotch, ChatCircle, ShareNetwork, Check, Ticket, Path,
 } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
 import { affiliateAction } from '../utils/affiliate';
 import { useSettings } from '../context/AppSettings';
+import { useTrip } from '../context/Trip';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 
 const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
     const { t } = useSettings();
+    const { inTrip, toggle: toggleTrip } = useTrip();
     const [details, setDetails] = useState(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -153,6 +155,9 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
                     <a className="btn-ghost" href={mapsUrl} target="_blank" rel="noopener noreferrer">
                         <ArrowSquareOut size={17} /> {t('detail.maps')}
                     </a>
+                    <button className="btn-ghost" onClick={() => toggleTrip(place)} title={t('detail.add_trip')} aria-label={t('detail.add_trip')}>
+                        <Path size={17} weight={inTrip(place.placeId) ? 'fill' : 'regular'} color={inTrip(place.placeId) ? '#E8552B' : undefined} />
+                    </button>
                     <button className="btn-ghost" onClick={share} title={t('detail.share')} aria-label={t('detail.share')}>
                         {copied ? <Check size={17} color="#15803D" /> : <ShareNetwork size={17} />}
                     </button>

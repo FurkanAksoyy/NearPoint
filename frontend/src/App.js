@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Bell, BellRinging } from '@phosphor-icons/react';
+import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Bell, BellRinging, MapTrifold } from '@phosphor-icons/react';
 import Home from './pages/Home';
 import About from './pages/About';
 import Saved from './pages/Saved';
 import BestOf from './pages/BestOf';
 import ToursPage from './pages/ToursPage';
+import TripPage from './pages/TripPage';
 import NearPage from './pages/NearPage';
 import Logo from './components/Logo';
 import AuthModal from './components/AuthModal';
 import { useSettings } from './context/AppSettings';
 import { useAuth } from './context/Auth';
+import { useTrip } from './context/Trip';
 import { pushSupported, enablePush } from './utils/push';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
@@ -54,6 +56,7 @@ function App() {
 
     const { t, theme, toggleTheme, lang, toggleLang } = useSettings();
     const { isAuthed, user, logout } = useAuth();
+    const { trip } = useTrip();
     const [authOpen, setAuthOpen] = useState(false);
     const [pushOn, setPushOn] = useState(() => typeof Notification !== 'undefined' && Notification.permission === 'granted');
     const [pushBusy, setPushBusy] = useState(false);
@@ -206,6 +209,10 @@ function App() {
                     <NavLink to="/tours" title={t('nav.tours')}>
                         <Path size={16} weight="fill" /><span className="nav-label">{t('nav.tours')}</span>
                     </NavLink>
+                    <NavLink to="/trip" title={t('nav.trip')}>
+                        <MapTrifold size={16} weight="fill" />
+                        <span className="nav-label">{trip.length ? `${t('nav.trip')} · ${trip.length}` : t('nav.trip')}</span>
+                    </NavLink>
                     <NavLink to="/saved" title={t('nav.saved')}>
                         <Heart size={16} weight={favorites.length ? 'fill' : 'regular'} style={{ color: favorites.length ? '#E8552B' : undefined }} />
                         <span className="nav-label">{favorites.length ? `${t('nav.saved')} · ${favorites.length}` : t('nav.saved')}</span>
@@ -269,6 +276,7 @@ function App() {
                 <Route path="/tours" element={
                     <ToursPage coords={coords} favorites={favIds} onToggleFav={toggleFav} onCoords={setCoords} />
                 } />
+                <Route path="/trip" element={<TripPage />} />
                 <Route path="/near/:city/:category" element={
                     <NearPage favorites={favIds} onToggleFav={toggleFav} />
                 } />

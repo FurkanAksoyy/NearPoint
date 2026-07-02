@@ -683,15 +683,19 @@ h1, h2, h3, h4, h5, .fw-display {
     :root { --search-h: 120px; }
 }
 
-/* Narrow phones: icon-only nav so it never overflows */
+/* Narrow phones: icon-only nav + controls so it never overflows */
 @media (max-width: 700px) {
-    .np-nav { padding: 8px 10px; gap: 6px; }
-    .np-nav-links { gap: 1px; }
-    .np-nav-links a { padding: 9px; }
-    .np-nav-links .nav-label { display: none; }
-    .np-controls { gap: 3px; margin-left: 2px; }
-    .np-icon-btn { width: 36px; height: 36px; }
-    .np-lang { min-width: 36px; height: 36px; padding: 0 6px; }
+    .np-nav { padding: 8px 8px; gap: 3px; }
+    .np-nav-links { gap: 0; }
+    .np-nav-links a { padding: 7px; }
+    .np-nav-links .nav-label,
+    .np-login .nav-label,
+    .np-user .nav-label { display: none; }
+    .np-controls { gap: 2px; margin-left: 2px; }
+    .np-icon-btn { width: 32px; height: 32px; }
+    .np-lang { min-width: 32px; height: 32px; padding: 0 5px; font-size: 0.72rem; }
+    .np-login { padding: 0 9px; height: 32px; }
+    .np-user { padding: 0 6px; }
 }
 @media (max-width: 430px) {
     .np-brand span { display: none; } /* logo only, reclaim wordmark width */
@@ -730,6 +734,15 @@ h1, h2, h3, h4, h5, .fw-display {
 .tour-thumb.placeholder { display: grid; place-items: center; color: var(--muted); }
 .tour-body { min-width: 0; }
 .tour-name { font-weight: 600; color: var(--ink); font-size: 0.98rem; }
+.trip-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.trip-stop-actions { display: flex; gap: 2px; flex: 0 0 auto; }
+.trip-icon {
+    display: inline-grid; place-items: center; width: 32px; height: 32px;
+    border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+    color: var(--body); cursor: pointer;
+}
+.trip-icon:hover:not(:disabled) { background: var(--line-soft); color: var(--ink); }
+.trip-icon:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ---------- Near / SEO landing page ---------- */
 .near-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }

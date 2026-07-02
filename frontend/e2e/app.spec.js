@@ -163,6 +163,20 @@ test('PWA: installable manifest + active service worker', async ({ page }, testI
     expect((await page.request.get('/sw.js')).status()).toBe(200);
 });
 
+test('trip planner: add a place, see it on /trip with a route link', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+
+    await page.goto('/');
+    await page.locator('.place-card').first().click();
+    await expect(page.locator('.detail-drawer')).toBeVisible();
+    await page.locator('button[aria-label="Add to trip"]').click();
+
+    await page.goto('/trip');
+    await expect(page.locator('.tour-stop').first()).toBeVisible();
+    await expect(page.locator('.trip-actions a')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('trip.png'), fullPage: false });
+});
+
 test('tours page: numbered walking route with a start button', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
 
