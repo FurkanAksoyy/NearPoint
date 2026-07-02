@@ -4,7 +4,9 @@ import com.furkanaksoyy.nearpoint.dto.PollResponse;
 import com.furkanaksoyy.nearpoint.dto.ShareRequest;
 import com.furkanaksoyy.nearpoint.dto.VoteRequest;
 import com.furkanaksoyy.nearpoint.service.PollService;
+import com.furkanaksoyy.nearpoint.util.ClientIpResolver;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,8 +46,9 @@ public class PollController {
     }
 
     @PostMapping("/{slug}/vote")
-    public PollResponse vote(@PathVariable String slug, @Valid @RequestBody VoteRequest request) {
-        pollService.vote(slug, request.placeId(), request.voter());
+    public PollResponse vote(@PathVariable String slug, @Valid @RequestBody VoteRequest request,
+                             HttpServletRequest httpRequest) {
+        pollService.vote(slug, request.placeId(), request.voter(), ClientIpResolver.resolve(httpRequest));
         return pollService.get(slug);
     }
 }

@@ -63,7 +63,7 @@ public class OgController {
         String t = esc(title);
         String d = esc(desc);
         String u = esc(url);
-        String img = base + "/icon-512.png";
+        String img = base + "/og-image.png";
         return "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
                 + "<title>" + t + " — NearPoint</title>"

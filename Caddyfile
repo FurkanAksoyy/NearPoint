@@ -4,7 +4,7 @@
 	# server-rendered Open Graph HTML for shared polls & lists. Humans still get the SPA.
 	@unfurl {
 		path /poll/* /s/*
-		header_regexp User-Agent (?i)(facebookexternalhit|twitterbot|whatsapp|telegrambot|slackbot|discordbot|linkedinbot|pinterest|redditbot|googlebot|bingbot|embedly|vkshare|skypeuripreview|whatsapp)
+		header_regexp User-Agent (?i)(facebookexternalhit|twitterbot|whatsapp|telegrambot|slackbot|discordbot|linkedinbot|pinterest|redditbot|embedly|vkshare|skypeuripreview)
 	}
 	handle @unfurl {
 		rewrite * /og{uri}

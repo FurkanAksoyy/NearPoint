@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Bell, BellRinging, MapTrifold, ChartBar } from '@phosphor-icons/react';
 import Home from './pages/Home';
@@ -57,6 +57,26 @@ function loadLoc() {
     } catch {
         return null;
     }
+}
+
+// Re-run the search when the URL query changes client-side (e.g. a /near page's "Explore" CTA → /?q=&lat=&lng=)
+function UrlSearchWatcher({ onParams }) {
+    const location = useLocation();
+    const first = useRef(true);
+    useEffect(() => {
+        if (first.current) { first.current = false; return; } // the initial search covers first render
+        if (location.pathname !== '/' || !location.search) return;
+        const p = new URLSearchParams(location.search);
+        const lat = parseFloat(p.get('lat'));
+        const lng = parseFloat(p.get('lng'));
+        onParams({
+            query: p.get('q') || '',
+            category: p.get('cat') || '',
+            coords: !isNaN(lat) && !isNaN(lng) ? { lat, lng } : null,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.pathname, location.search]);
+    return null;
 }
 
 function App() {
@@ -184,6 +204,11 @@ function App() {
         if (label) setLocLabel(label);
     };
 
+    const handleUrlSearch = useCallback((parsed) => {
+        if (parsed.coords) { setCoords(parsed.coords); setGeolocated(false); }
+        runSearch(parsed.query, parsed.category, parsed.coords || coords);
+    }, [coords, runSearch]);
+
     // Sync favorites with the server on login (merge guest favorites up), revert to local on logout
     useEffect(() => {
         let cancelled = false;
@@ -224,6 +249,7 @@ function App() {
 
     return (
         <Router>
+            <UrlSearchWatcher onParams={handleUrlSearch} />
             <nav className="np-nav">
                 <NavLink className="np-brand" to={`/${window.location.search}`}>
                     <Logo size={24} />

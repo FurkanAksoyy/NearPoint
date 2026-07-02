@@ -6,11 +6,14 @@ import com.furkanaksoyy.nearpoint.dto.SharedListResponse;
 import com.furkanaksoyy.nearpoint.model.PollVote;
 import com.furkanaksoyy.nearpoint.repository.PollVoteRepository;
 import com.furkanaksoyy.nearpoint.repository.SharedListRepository;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,9 +21,13 @@ import java.util.Map;
 @Service
 public class PollService {
 
+    private static final int IP_VOTE_CAP = 8; // distinct new votes per IP per poll per day
+
     private final ShareService shareService;
     private final PollVoteRepository votes;
     private final SharedListRepository sharedLists;
+    private final Cache<String, Integer> ipVotes = Caffeine.newBuilder()
+            .maximumSize(50_000).expireAfterWrite(Duration.ofHours(24)).build();
 
     public PollService(ShareService shareService, PollVoteRepository votes, SharedListRepository sharedLists) {
         this.shareService = shareService;
@@ -49,13 +56,23 @@ public class PollService {
     }
 
     @Transactional
-    public void vote(String slug, String placeId, String voter) {
+    public void vote(String slug, String placeId, String voter, String ip) {
         SharedListResponse list = shareService.get(slug);
         boolean valid = list.places().stream().anyMatch(p -> placeId.equals(p.placeId()));
         if (!valid) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not an option in this poll");
         }
-        PollVote vote = votes.findBySlugAndVoter(slug, voter).orElseGet(PollVote::new);
+        java.util.Optional<PollVote> existing = votes.findBySlugAndVoter(slug, voter);
+        // Rate-limit distinct new voters per IP so a script can't stuff a featured poll
+        if (existing.isEmpty() && ip != null && !ip.isBlank()) {
+            String key = slug + '|' + ip;
+            int count = ipVotes.get(key, k -> 0);
+            if (count >= IP_VOTE_CAP) {
+                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many votes from this network");
+            }
+            ipVotes.put(key, count + 1);
+        }
+        PollVote vote = existing.orElseGet(PollVote::new);
         vote.setSlug(slug);
         vote.setPlaceId(placeId);
         vote.setVoter(voter);

@@ -42,6 +42,8 @@
     --shadow-ember: 0 1px 2px rgba(194, 67, 31, 0.25), 0 6px 18px -6px rgba(232, 85, 43, 0.38);
     /* Signature Ember panel gradient (warm ramp) */
     --ember-grad: linear-gradient(132deg, #B03A18 0%, #D0481F 42%, #E8552B 78%, #F2683C 100%);
+    /* Readable text on an --ink fill (flips in dark so it never goes white-on-white) */
+    --on-ink: #FFFFFF;
 
     --nav-h: 60px;
     --search-h: 132px;
@@ -73,6 +75,7 @@
     --shadow-md: 0 8px 24px -10px rgba(0, 0, 0, 0.6);
     --shadow-lg: 0 16px 40px -12px rgba(0, 0, 0, 0.7);
     --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 8px -4px rgba(0, 0, 0, 0.55);
+    --on-ink: #0B1220;
 }
 [data-theme="dark"] .badge-closed { background: rgba(248, 113, 113, 0.16); }
 [data-theme="dark"] .pane-error { background: rgba(248, 113, 113, 0.14); color: #F87171; }
@@ -307,11 +310,6 @@ h1, h2, h3, h4, h5, .fw-display {
     font-size: 0.72rem; font-weight: 700; text-transform: uppercase; cursor: pointer; padding: 0;
 }
 .suggest-clear:hover { text-decoration: underline; }
-.search-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-ring);
-}
 .btn-loc, .btn-go {
     height: 46px;
     border-radius: var(--r-input);
@@ -366,11 +364,6 @@ h1, h2, h3, h4, h5, .fw-display {
     white-space: nowrap;
 }
 .chip:hover { border-color: var(--accent); color: var(--accent-strong); }
-.chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-}
 
 /* Turnstile holder */
 .turnstile-holder { display: flex; align-items: center; margin-top: 10px; min-height: 0; max-width: 100%; overflow: hidden; }
@@ -447,7 +440,6 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 [data-theme="dark"] .place-card { background: var(--surface-raised); }
 @keyframes card-rise { from { opacity: 0; transform: translateY(8px); } }
-.place-card.hovered { border-color: var(--accent); }
 .place-thumb {
     flex: 0 0 96px;
     width: 96px;
@@ -501,7 +493,7 @@ h1, h2, h3, h4, h5, .fw-display {
 
 /* ---------- Compare tray + modal ---------- */
 .cmp-tray {
-    position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; z-index: 2500;
+    position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + var(--sab)); z-index: 2500;
     display: flex; align-items: center; gap: 10px;
     max-width: 760px; width: calc(100% - 24px);
     padding: 10px 12px; border-radius: 14px;
@@ -627,7 +619,12 @@ h1, h2, h3, h4, h5, .fw-display {
     padding: 10px;
     margin-bottom: 10px;
 }
-.skel { background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 37%, #eef2f7 63%); background-size: 400% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
+.skel { background: linear-gradient(90deg, var(--line-soft) 25%, var(--line) 37%, var(--line-soft) 63%); background-size: 400% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
+/* One material system: every card shares the soft ring + lift, not a 1px border */
+.tour-stop, .best-card, .poll-opt, .admin-card, .feature-card, .step, .cmp-col, .skel-card, .trip-add-item {
+    border-color: transparent;
+    box-shadow: var(--shadow-card);
+}
 .skel-thumb { width: 96px; height: 96px; flex: 0 0 96px; }
 .skel-line { height: 12px; margin-bottom: 8px; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
@@ -674,7 +671,7 @@ h1, h2, h3, h4, h5, .fw-display {
     transition: transform .1s;
 }
 .map-marker .star { color: #FFD9A8; }
-.map-marker.active, .map-marker:hover { background: var(--ink); transform: translate(-50%, -100%) scale(1.08); z-index: 5; }
+.map-marker.active, .map-marker:hover { background: var(--ink); color: var(--on-ink); transform: translate(-50%, -100%) scale(1.08); z-index: 5; }
 /* Stem so the pill anchors to its point */
 .map-marker::after {
     content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
@@ -726,7 +723,7 @@ h1, h2, h3, h4, h5, .fw-display {
     background: var(--accent-soft); color: var(--accent-strong);
     font-weight: 600; text-decoration: none; font-size: 0.92rem;
 }
-.affiliate-cta:hover { background: #FBDDD1; color: var(--accent-strong); }
+.affiliate-cta:hover { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent-strong); }
 .affiliate-cta .ad-tag {
     margin-left: auto; font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line);
@@ -762,7 +759,7 @@ h1, h2, h3, h4, h5, .fw-display {
 .fav-btn.on svg { animation: heart-pop .3s cubic-bezier(.34, 1.56, .64, 1); }
 
 /* Active chips use ink, not Ember — reserve Ember for actions */
-.chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip.active { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
 
 /* Editorial kicker above section headlines */
 .kicker {
@@ -810,7 +807,7 @@ h1, h2, h3, h4, h5, .fw-display {
     transform: translateX(-50%);
     z-index: 6;
     background: var(--ink);
-    color: #fff;
+    color: var(--on-ink);
     border: none;
     border-radius: 999px;
     padding: 9px 18px;
@@ -822,7 +819,7 @@ h1, h2, h3, h4, h5, .fw-display {
     gap: 7px;
     cursor: pointer;
 }
-.search-area-btn:hover { background: #1e293b; }
+.search-area-btn:hover { background: color-mix(in srgb, var(--ink) 88%, var(--bg)); }
 
 /* ---------- Mobile bottom sheet (vaul) ---------- */
 .visually-hidden {
@@ -1051,7 +1048,7 @@ h1, h2, h3, h4, h5, .fw-display {
     font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; letter-spacing: -0.02em;
     color: var(--ink); font-family: inherit;
 }
-.trip-name-input::placeholder { color: var(--line); }
+.trip-name-input::placeholder { color: var(--muted-soft); }
 .trip-name-input:focus { outline: none; }
 .trip-list { position: relative; }
 .trip-leg {
