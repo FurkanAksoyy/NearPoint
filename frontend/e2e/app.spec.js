@@ -114,6 +114,14 @@ test('autocomplete: suggestions appear as you type and are selectable', async ({
     await expect(page.locator('.place-card').first()).toBeVisible({ timeout: 15000 });
 });
 
+test('affiliate reserve CTA appears on a restaurant', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await page.goto('/?q=hamburger&lat=41.037&lng=28.985');
+    await page.locator('.place-card').first().click();
+    await expect(page.locator('.affiliate-cta')).toBeVisible({ timeout: 15000 });
+    await page.screenshot({ path: testInfo.outputPath('affiliate.png'), fullPage: false });
+});
+
 test('place detail drawer loads rich details + reviews', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
 

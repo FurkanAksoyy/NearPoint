@@ -2,6 +2,7 @@ import React from 'react';
 import { Star, Heart, Clock, MapPin, Storefront } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
+import { isFeatured } from '../utils/affiliate';
 import { useSettings } from '../context/AppSettings';
 
 const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t }) => {
@@ -22,6 +23,7 @@ const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t })
             )}
 
             <div className="place-body">
+                {isFeatured(place.placeId) && <span className="featured-badge">{t('label.featured')}</span>}
                 <div className="place-name">
                     <span className="text-truncate">{place.name}</span>
                     <button

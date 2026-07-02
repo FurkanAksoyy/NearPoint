@@ -61,6 +61,10 @@ export const translations = {
         'detail.reviews': 'Reviews',
         'detail.share': 'Share',
         'detail.copied': 'Copied',
+        'action.book': 'Book a room',
+        'action.reserve': 'Reserve a table',
+        'label.featured': 'Featured',
+        'label.ad': 'Ad',
 
         'saved.title': 'Saved places',
         'saved.count': 'saved',
@@ -174,6 +178,10 @@ export const translations = {
         'detail.reviews': 'Yorumlar',
         'detail.share': 'Paylaş',
         'detail.copied': 'Kopyalandı',
+        'action.book': 'Oda ayırt',
+        'action.reserve': 'Masa ayırt',
+        'label.featured': 'Öne çıkan',
+        'label.ad': 'Reklam',
 
         'saved.title': 'Kayıtlı yerler',
         'saved.count': 'kayıtlı',

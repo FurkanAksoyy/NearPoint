@@ -3,10 +3,11 @@ import { Offcanvas } from 'react-bootstrap';
 import axios from 'axios';
 import {
     Star, Heart, Clock, MapPin, ArrowSquareOut, NavigationArrow,
-    Phone, Globe, CircleNotch, ChatCircle, ShareNetwork, Check,
+    Phone, Globe, CircleNotch, ChatCircle, ShareNetwork, Check, Ticket,
 } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
+import { affiliateAction } from '../utils/affiliate';
 import { useSettings } from '../context/AppSettings';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
@@ -135,6 +136,14 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
                             </div>
                         )}
                     </div>
+                )}
+
+                {affiliateAction(place) && (
+                    <a className="affiliate-cta" href={affiliateAction(place).url}
+                       target="_blank" rel="noopener noreferrer sponsored">
+                        <Ticket size={18} weight="fill" /> {t(affiliateAction(place).key)}
+                        <span className="ad-tag">{t('label.ad')}</span>
+                    </a>
                 )}
 
                 <div className="detail-actions">
