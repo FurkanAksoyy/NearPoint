@@ -56,28 +56,28 @@ const PlaceDetailDrawer = ({ place, show, onHide, isFav, onToggleFav }) => {
 
     return (
         <Offcanvas show={show} onHide={onHide} placement="end" className="detail-drawer" style={{ width: 'min(440px, 100vw)' }}>
-            <Offcanvas.Header closeButton>
-                <Offcanvas.Title className="text-truncate">{place.name}</Offcanvas.Title>
-            </Offcanvas.Header>
+            <Offcanvas.Header closeButton className="detail-header-float" />
             <Offcanvas.Body>
-                {img
-                    ? <img className="detail-hero" src={img} alt={place.name} />
-                    : <div className="detail-hero" style={{ display: 'grid', placeItems: 'center' }}><MapPin size={40} color="#94A3B8" /></div>}
-
-                <h3 className="detail-title">{place.name}</h3>
-
-                <div className="place-meta" style={{ fontSize: '0.9rem' }}>
-                    {place.rating != null && (
-                        <span className="rating">
-                            <Star size={15} weight="fill" className="star" />
-                            {place.rating}
-                            {place.userRatingsTotal != null && <span className="cnt">({place.userRatingsTotal})</span>}
-                        </span>
-                    )}
-                    {price && <><span className="dot-sep">·</span><span className="price">{price}</span></>}
-                    <span className="dot-sep">·</span>
-                    <span>{prettyType(place.types)}</span>
-                    {place._distance != null && <><span className="dot-sep">·</span><span className="mono">{formatDistance(place._distance)}</span></>}
+                <div className={`detail-hero-wrap ${img ? '' : 'no-img'}`}>
+                    {img
+                        ? <img className="detail-hero" src={img} alt={place.name} />
+                        : <div className="detail-hero placeholder"><MapPin size={40} /></div>}
+                    <div className="detail-hero-scrim">
+                        <h3 className="detail-title">{place.name}</h3>
+                        <div className="place-meta detail-hero-meta">
+                            {place.rating != null && (
+                                <span className="rating">
+                                    <Star size={15} weight="fill" className="star" />
+                                    {place.rating}
+                                    {place.userRatingsTotal != null && <span className="cnt">({place.userRatingsTotal})</span>}
+                                </span>
+                            )}
+                            {price && <><span className="dot-sep">·</span><span className="price">{price}</span></>}
+                            <span className="dot-sep">·</span>
+                            <span>{prettyType(place.types)}</span>
+                            {place._distance != null && <><span className="dot-sep">·</span><span className="mono">{formatDistance(place._distance)}</span></>}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="place-meta" style={{ marginTop: 8 }}>

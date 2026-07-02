@@ -12,6 +12,12 @@ const PollPage = () => {
     const [poll, setPoll] = useState(undefined); // undefined = loading, null = not found
     const [myVote, setMyVote] = useState(() => localStorage.getItem(`np_vote_${slug}`) || null);
     const [voting, setVoting] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        if (poll) { const id = setTimeout(() => setMounted(true), 60); return () => clearTimeout(id); }
+        return undefined;
+    }, [poll]);
 
     useEffect(() => {
         let cancelled = false;
@@ -84,7 +90,7 @@ const PollPage = () => {
                                     {p.rating != null && <span className="rating"><Star size={13} weight="fill" className="star" />{p.rating}</span>}
                                     <span className="dot-sep">·</span><span>{prettyType(p.types)}</span>
                                 </div>
-                                <div className="poll-bar"><span className="poll-bar-fill" style={{ width: `${pct}%` }} /></div>
+                                <div className="poll-bar"><span className="poll-bar-fill" style={{ width: mounted ? `${pct}%` : '0%' }} /></div>
                             </div>
                             <div className="poll-side">
                                 {mine
