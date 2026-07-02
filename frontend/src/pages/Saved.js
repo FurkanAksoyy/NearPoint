@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HeartBreak, MagnifyingGlass, MapTrifold, SealCheck, ShareNetwork, Check } from '@phosphor-icons/react';
+import { HeartBreak, MagnifyingGlass, MapTrifold, SealCheck, ShareNetwork, Check, Medal } from '@phosphor-icons/react';
 import PlacesList from '../components/PlacesList';
 import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
 import RouteMap from '../components/RouteMap';
 import Seo from '../components/Seo';
 import { prettyType } from '../utils/places';
 import { shareList } from '../utils/share';
+import { explorerLevel } from '../utils/explorer';
 import { useSettings } from '../context/AppSettings';
 import { useTrip } from '../context/Trip';
 import { useVisited } from '../context/Visited';
@@ -90,6 +91,21 @@ const Saved = ({ favorites, favIds, onToggleFav }) => {
             {tab === 'visited' && (
                 visited.length > 0 ? (
                     <>
+                        {(() => {
+                            const ex = explorerLevel(visited.length);
+                            return (
+                                <div className="passport">
+                                    <div className="passport-badge"><Medal size={26} weight="fill" /></div>
+                                    <div className="passport-body">
+                                        <div className="passport-title">{t('passport.level')} {ex.level} · {t(ex.key)}</div>
+                                        <div className="passport-bar"><span style={{ width: `${ex.progress}%` }} /></div>
+                                        <div className="passport-next">
+                                            {ex.next ? `${ex.next.remaining} ${t('passport.to_next')} ${t(ex.next.key)}` : t('passport.max')}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
                         <div className="visited-stats">
                             <span className="vs-count">{visited.length}</span>
                             <span className="vs-label">{t('visited.count')}</span>

@@ -1078,6 +1078,22 @@ h1, h2, h3, h4, h5, .fw-display {
     display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px;
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); font-size: 0.72rem;
 }
+.passport {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; margin-bottom: 12px; border-radius: var(--r-card);
+    background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+    color: #fff;
+}
+.passport-badge {
+    width: 48px; height: 48px; border-radius: 999px; flex: 0 0 auto;
+    display: grid; place-items: center; background: rgba(255, 255, 255, 0.18);
+}
+.passport-body { flex: 1; min-width: 0; }
+.passport-title { font-weight: 800; font-size: 1.05rem; }
+.passport-bar { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.25); overflow: hidden; margin: 8px 0 6px; }
+.passport-bar span { display: block; height: 100%; background: #fff; border-radius: 999px; transition: width .4s ease; }
+.passport-next { font-size: 0.82rem; opacity: 0.92; font-weight: 600; }
+
 .visited-stats {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     padding: 16px 18px; margin-bottom: 16px;
