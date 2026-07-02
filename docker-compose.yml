@@ -35,6 +35,7 @@ services:
       TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
       API_KEY: ${API_KEY:-}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost}
+      # JWT/VAPID use the application.yml dev defaults unless you set them in .env
     ports:
       - "8070:8070"
 

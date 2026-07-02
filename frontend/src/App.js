@@ -1,20 +1,22 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
 import { Heart, Sun, Moon, Sparkle, Compass, Info, UserCircle, SignOut, Path, Bell, BellRinging, MapTrifold } from '@phosphor-icons/react';
 import Home from './pages/Home';
-import About from './pages/About';
-import Saved from './pages/Saved';
-import BestOf from './pages/BestOf';
-import ToursPage from './pages/ToursPage';
-import TripPage from './pages/TripPage';
-import NearPage from './pages/NearPage';
 import Logo from './components/Logo';
 import AuthModal from './components/AuthModal';
 import { useSettings } from './context/AppSettings';
 import { useAuth } from './context/Auth';
 import { useTrip } from './context/Trip';
 import { pushSupported, enablePush } from './utils/push';
+
+// Code-split secondary routes so the initial bundle stays small (better INP/LCP)
+const About = lazy(() => import('./pages/About'));
+const Saved = lazy(() => import('./pages/Saved'));
+const BestOf = lazy(() => import('./pages/BestOf'));
+const ToursPage = lazy(() => import('./pages/ToursPage'));
+const TripPage = lazy(() => import('./pages/TripPage'));
+const NearPage = lazy(() => import('./pages/NearPage'));
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 const DEFAULT_COORDS = { lat: 41.0370, lng: 28.9851 }; // Istanbul
@@ -250,6 +252,7 @@ function App() {
                 </div>
             </nav>
 
+            <Suspense fallback={<div className="pane-state" style={{ paddingTop: 80 }} />}>
             <Routes>
                 <Route path="/" element={
                     <Home
@@ -285,6 +288,7 @@ function App() {
                 } />
                 <Route path="/about" element={<About />} />
             </Routes>
+            </Suspense>
 
             <AuthModal show={authOpen} onHide={() => setAuthOpen(false)} />
         </Router>
