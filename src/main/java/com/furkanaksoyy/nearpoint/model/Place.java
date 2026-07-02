@@ -46,6 +46,7 @@ public class Place {
     // Places API (New) extras
     private Boolean openNow;
     private String priceLevel;
+    private Boolean wheelchairAccessible;
 
     // Bu alan arama parametrelerini tanımlar
     private Double searchLatitude;

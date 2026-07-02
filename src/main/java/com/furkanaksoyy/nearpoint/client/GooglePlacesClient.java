@@ -33,7 +33,8 @@ public class GooglePlacesClient {
     private static final String FIELD_MASK = String.join(",",
             "places.id", "places.displayName", "places.formattedAddress", "places.location",
             "places.rating", "places.userRatingCount", "places.types", "places.priceLevel",
-            "places.currentOpeningHours.openNow", "places.photos");
+            "places.currentOpeningHours.openNow", "places.photos",
+            "places.accessibilityOptions.wheelchairAccessibleEntrance");
 
     // Richer mask for on-demand single-place details (only billed when a user opens a place)
     private static final String DETAILS_FIELD_MASK = String.join(",",

@@ -211,6 +211,11 @@ public class PlaceService {
                 place.setOpenNow((Boolean) hours.get("openNow"));
             }
 
+            Map<String, Object> access = (Map<String, Object>) result.get("accessibilityOptions");
+            if (access != null && access.get("wheelchairAccessibleEntrance") != null) {
+                place.setWheelchairAccessible((Boolean) access.get("wheelchairAccessibleEntrance"));
+            }
+
             List<Map<String, Object>> photos = (List<Map<String, Object>>) result.get("photos");
             if (photos != null && !photos.isEmpty()) {
                 place.setPhotoReference((String) photos.get(0).get("name"));

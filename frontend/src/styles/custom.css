@@ -454,6 +454,12 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .fav-btn.on { color: var(--accent); }
 .place-name > span.text-truncate { flex: 1 1 auto; min-width: 0; }
+.badge-access {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 6px;
+    background: #E8F0FE; color: #1A56DB;
+}
+[data-theme="dark"] .badge-access { background: rgba(59, 130, 246, 0.18); color: #93B4FF; }
 .cmp-btn {
     flex: 0 0 auto; border: none; background: none; color: var(--muted);
     cursor: pointer; display: inline-flex; padding: 2px; line-height: 1; margin-right: 2px;

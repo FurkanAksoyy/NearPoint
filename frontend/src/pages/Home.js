@@ -40,7 +40,7 @@ const Home = ({
 }) => {
     const { t, lang } = useSettings();
     const isMobile = useMediaQuery('(max-width: 900px)');
-    const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false, maxPrice: 0, hiddenGems: false });
+    const [filters, setFilters] = useState({ sort: 'relevance', minRating: 0, openNowOnly: false, maxPrice: 0, hiddenGems: false, accessible: false });
     const [hoveredId, setHoveredId] = useState(null);
     const [selected, setSelected] = useState(null);
     const [showDrawer, setShowDrawer] = useState(false);
@@ -69,6 +69,7 @@ const Home = ({
         // Hidden gems: well-loved but under-the-radar (high rating, modest review count)
         if (filters.hiddenGems) items = items.filter((p) => (p.rating || 0) >= 4.5
             && (p.userRatingsTotal || 0) >= 15 && (p.userRatingsTotal || 0) <= 300);
+        if (filters.accessible) items = items.filter((p) => p.wheelchairAccessible === true);
         if (filters.sort === 'rating') items = [...items].sort((a, b) => (b.rating || 0) - (a.rating || 0));
         else if (filters.sort === 'distance') items = [...items].sort((a, b) => (a._distance ?? 1e12) - (b._distance ?? 1e12));
         return items;

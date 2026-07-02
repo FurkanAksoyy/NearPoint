@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Heart, Clock, MapPin, Storefront, Scales } from '@phosphor-icons/react';
+import { Star, Heart, Clock, MapPin, Storefront, Scales, Wheelchair } from '@phosphor-icons/react';
 import { photoUrl, formatPrice, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
 import { isFeatured } from '../utils/affiliate';
@@ -69,6 +69,11 @@ const PlaceCard = ({ place, isFav, onToggleFav, onSelect, hovered, onHover, t })
                 <div className="place-meta">
                     {place.openNow === true && <span className="badge-open"><Clock size={12} weight="fill" /> {t('card.open')}</span>}
                     {place.openNow === false && <span className="badge-closed"><Clock size={12} /> {t('card.closed')}</span>}
+                    {place.wheelchairAccessible === true && (
+                        <span className="badge-access" title={t('a11y.wheelchair')} aria-label={t('a11y.wheelchair')}>
+                            <Wheelchair size={12} weight="fill" />
+                        </span>
+                    )}
                 </div>
 
                 <div className="place-addr"><MapPin size={12} /> {place.vicinity}</div>

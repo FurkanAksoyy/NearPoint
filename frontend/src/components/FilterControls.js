@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Diamond } from '@phosphor-icons/react';
+import { Clock, Diamond, Wheelchair } from '@phosphor-icons/react';
 import { useSettings } from '../context/AppSettings';
 
 const FilterControls = ({ filters, onChange }) => {
@@ -43,6 +43,15 @@ const FilterControls = ({ filters, onChange }) => {
                 title={t('filter.hidden_gems_hint')}
             >
                 <Diamond size={15} weight={filters.hiddenGems ? 'fill' : 'regular'} /> {t('filter.hidden_gems')}
+            </button>
+
+            <button
+                type="button"
+                className={`filter-toggle ${filters.accessible ? 'active' : ''}`}
+                onClick={() => set({ accessible: !filters.accessible })}
+                title={t('a11y.wheelchair')}
+            >
+                <Wheelchair size={15} weight={filters.accessible ? 'fill' : 'regular'} /> {t('filter.accessible')}
             </button>
         </div>
     );

@@ -18,6 +18,7 @@ public record PlaceResponse(
         String photoReference,
         Boolean openNow,
         String priceLevel,
+        Boolean wheelchairAccessible,
         Double searchLatitude,
         Double searchLongitude,
         Integer searchRadius
