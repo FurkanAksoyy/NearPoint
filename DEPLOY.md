@@ -49,12 +49,13 @@ Fill in at minimum:
 
 ```env
 POSTGRES_PASSWORD=<a-strong-password>
-DOMAIN=yourdomain.com
-ACME_EMAIL=you@yourdomain.com
+JWT_SECRET=<openssl rand -base64 48>   # REQUIRED — the app won't start with a weak/default secret in prod
+DOMAIN=nearpoint.app
+ACME_EMAIL=you@nearpoint.app
 GOOGLE_PLACES_API_KEY=<server-places-api-key>
 REACT_APP_GOOGLE_MAPS_API_KEY=<browser-maps-js-api-key>
 
-# Optional — Cloudflare Turnstile bot protection (leave blank to disable)
+# Strongly recommended in prod so /api/places isn't an open, billable Google Places proxy:
 REACT_APP_TURNSTILE_SITE_KEY=<turnstile-site-key>
 TURNSTILE_SECRET_KEY=<turnstile-secret-key>
 ```
@@ -74,7 +75,21 @@ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 First run: Caddy obtains a TLS certificate (needs DNS pointing at the server and
-ports 80/443 reachable). After ~30–60s visit **https://yourdomain.com**.
+ports 80/443 reachable). After ~30–60s visit **https://nearpoint.app**.
+
+## 5b. First-run setup
+
+```sh
+# 1) Register your account in the app (https://nearpoint.app → Log in → create account).
+
+# 2) Make yourself admin (nothing sensitive lives in the repo — admin is a DB flag):
+docker compose -f docker-compose.prod.yml exec db \
+  psql -U postgres nearpoint -c "UPDATE users SET role='ADMIN' WHERE email='you@example.com';"
+
+# 3) Log out/in — an "Admin" nav item appears. From the dashboard, hit
+#    "Generate this week's poll" to seed the homepage poll immediately
+#    (it also auto-generates every Monday, and /near pages warm weekly).
+```
 
 ## 6. Operate
 
@@ -97,15 +112,21 @@ docker compose -f docker-compose.prod.yml up -d
 
 ## 7. Backups (Postgres)
 
+The prod stack runs a **`db-backup`** sidecar that writes a daily `pg_dump` to
+`./backups/nearpoint-*.sql.gz` on the host and keeps the last 7 days automatically.
+Copy that folder off-server periodically (e.g. `rsync`/S3).
+
 ```sh
-# Dump
+# Manual dump
 docker compose -f docker-compose.prod.yml exec db \
   pg_dump -U postgres nearpoint > backup_$(date +%F).sql
 
-# Restore
+# Restore (from a .sql or gunzipped dump)
 cat backup.sql | docker compose -f docker-compose.prod.yml exec -T db \
   psql -U postgres nearpoint
 ```
+
+**Uptime:** point a free monitor (e.g. UptimeRobot) at `https://nearpoint.app/actuator/health`.
 
 ## Notes
 
