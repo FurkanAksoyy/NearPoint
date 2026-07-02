@@ -81,10 +81,18 @@ resilience4j:
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         registerHealthIndicator: false
+        # 4xx means our request was bad (key/params), not the upstream being down — don't trip the breaker
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException
   retry:
     instances:
       googlePlaces:
         maxAttempts: 3
         waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
         retryExceptions:
           - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException

@@ -28,13 +28,16 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final GooglePlacesClient googlePlacesClient;
     private final PlaceMapper placeMapper;
+    private final long cacheTtlHours;
 
     public PlaceService(PlaceRepository placeRepository,
                         GooglePlacesClient googlePlacesClient,
-                        PlaceMapper placeMapper) {
+                        PlaceMapper placeMapper,
+                        @org.springframework.beans.factory.annotation.Value("${google.places.cache-ttl-hours:24}") long cacheTtlHours) {
         this.placeRepository = placeRepository;
         this.googlePlacesClient = googlePlacesClient;
         this.placeMapper = placeMapper;
+        this.cacheTtlHours = cacheTtlHours;
     }
 
     /**
@@ -50,7 +53,8 @@ public class PlaceService {
         String q = normalize(query);
         String cat = normalize(category);
 
-        List<Place> existing = placeRepository.findBySearchParameters(latitude, longitude, radius, q, cat);
+        List<Place> existing = placeRepository.findBySearchParameters(
+                latitude, longitude, radius, q, cat, LocalDateTime.now().minusHours(cacheTtlHours));
         if (!existing.isEmpty()) {
             log.debug("DB cache hit for q='{}' cat='{}' ({}, {}, {}) -> {}", q, cat, latitude, longitude, radius, existing.size());
             return placeMapper.toResponseList(existing);
