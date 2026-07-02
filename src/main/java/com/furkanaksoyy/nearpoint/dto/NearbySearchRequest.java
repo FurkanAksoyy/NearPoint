@@ -33,8 +33,6 @@ public record NearbySearchRequest(
         String query,
 
         @Size(max = 100, message = "category must be at most 100 characters")
-        String category,
-
-        Boolean openNow
+        String category
 ) {
 }

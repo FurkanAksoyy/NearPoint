@@ -50,10 +50,11 @@ jwt:
   secret: ${JWT_SECRET:nearpoint-dev-secret-change-me-please-32chars-minimum-0123456789}
   expiration-days: ${JWT_EXPIRATION_DAYS:7}
 
-# Web Push (VAPID). Override the private key via env in production.
+# Web Push (VAPID). Blank by default → push disabled. Generate with:
+#   npx web-push generate-vapid-keys  (then set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY)
 vapid:
-  public-key: ${VAPID_PUBLIC_KEY:BAEtqPwr4ZH823MvhVfL88o8dGqGxNTzaxDfkPkkpy_otL6cMMfGjvOh9lOdmZrzs39dXotSEprtPzM_zK73MK8}
-  private-key: ${VAPID_PRIVATE_KEY:uzEBdjK8yopu48G3PdENlJfOK4NtFLH96itizfJsVwU}
+  public-key: ${VAPID_PUBLIC_KEY:}
+  private-key: ${VAPID_PRIVATE_KEY:}
   subject: ${VAPID_SUBJECT:mailto:hello@near-point.app}
 
 # --- Observability ---

@@ -25,6 +25,7 @@ export async function enablePush() {
 
     const reg = await navigator.serviceWorker.ready;
     const { data } = await axios.get(`${API_BASE_URL}/api/push/public-key`);
+    if (!data.publicKey) throw new Error('push-not-configured'); // VAPID keys not set on the server
 
     let sub = await reg.pushManager.getSubscription();
     if (!sub) {
@@ -35,13 +36,11 @@ export async function enablePush() {
     }
 
     const json = sub.toJSON();
+    // The backend sends a confirmation ping right after a new subscription is saved.
     await axios.post(`${API_BASE_URL}/api/push/subscribe`, {
         endpoint: sub.endpoint,
         p256dh: json.keys.p256dh,
         auth: json.keys.auth,
     });
-
-    // Confirmation ping so the user sees it working
-    await axios.post(`${API_BASE_URL}/api/push/test`, { endpoint: sub.endpoint }).catch(() => {});
     return true;
 }

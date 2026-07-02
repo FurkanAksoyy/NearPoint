@@ -38,10 +38,4 @@ public class PushController {
                 principal != null ? principal.id() : null);
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/test")
-    public ResponseEntity<Void> test(@RequestBody Map<String, String> body) {
-        pushService.sendTest(body.get("endpoint"));
-        return ResponseEntity.ok().build();
-    }
 }

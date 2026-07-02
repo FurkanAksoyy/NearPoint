@@ -1,6 +1,8 @@
 package com.furkanaksoyy.nearpoint.filter;
 
 import com.furkanaksoyy.nearpoint.util.ClientIpResolver;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
@@ -15,19 +17,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Per-client-IP rate limiting for {@code /api/**} using Bucket4j (token bucket,
  * 60 requests/minute). Runs before Spring Security so abusive clients are shed early.
+ * The per-IP bucket store is a bounded Caffeine cache so a flood of distinct IPs
+ * can't grow it without limit.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final int CAPACITY = 60;
-    private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
+    private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
+            .maximumSize(100_000)
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
 
     private Bucket newBucket() {
         Bandwidth limit = Bandwidth.builder()
@@ -46,7 +51,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        Bucket bucket = buckets.computeIfAbsent(ClientIpResolver.resolve(request), k -> newBucket());
+        Bucket bucket = buckets.get(ClientIpResolver.resolve(request), k -> newBucket());
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if (probe.isConsumed()) {

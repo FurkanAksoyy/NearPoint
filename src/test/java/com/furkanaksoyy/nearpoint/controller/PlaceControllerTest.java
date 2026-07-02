@@ -40,7 +40,7 @@ class PlaceControllerTest {
     @Test
     void validRequestReturnsOk() throws Exception {
         when(turnstileService.verify(any(), any())).thenReturn(true);
-        when(placeService.search(any(), any(), any(), any(), any(), any())).thenReturn(List.of());
+        when(placeService.search(any(), any(), any(), any(), any())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/places/nearby")
                         .param("latitude", "41.0")

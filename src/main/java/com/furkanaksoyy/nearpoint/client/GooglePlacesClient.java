@@ -50,7 +50,7 @@ public class GooglePlacesClient {
     @CircuitBreaker(name = "googlePlaces", fallbackMethod = "fallback")
     @Retry(name = "googlePlaces")
     public Map<String, Object> search(String query, String category,
-                                      Double latitude, Double longitude, Integer radius, Boolean openNow) {
+                                      Double latitude, Double longitude, Integer radius) {
         boolean hasQuery = query != null && !query.isBlank();
         boolean hasCategory = category != null && !category.isBlank();
 
@@ -67,9 +67,6 @@ public class GooglePlacesClient {
             body.put("pageSize", 20);
             if (hasCategory) {
                 body.put("includedType", category);
-            }
-            if (Boolean.TRUE.equals(openNow)) {
-                body.put("openNow", true);
             }
         } else {
             url = config.getNearbySearchUrl();
@@ -97,7 +94,7 @@ public class GooglePlacesClient {
 
     @SuppressWarnings("unused")
     private Map<String, Object> fallback(String query, String category, Double latitude, Double longitude,
-                                         Integer radius, Boolean openNow, Throwable t) {
+                                         Integer radius, Throwable t) {
         log.warn("Places API unavailable ({}): {}", t.getClass().getSimpleName(), t.getMessage());
         return Map.of("places", List.of());
     }

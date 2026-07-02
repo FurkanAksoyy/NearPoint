@@ -90,7 +90,7 @@ class PlaceServiceIT extends AbstractPostgresIT {
                         }
                         """)));
 
-        List<PlaceResponse> first = placeService.search("hamburger", null, 41.0370, 28.9851, 1500, null);
+        List<PlaceResponse> first = placeService.search("hamburger", null, 41.0370, 28.9851, 1500);
         assertThat(first).hasSize(1);
         PlaceResponse p = first.get(0);
         assertThat(p.name()).isEqualTo("Test Burger");
@@ -101,7 +101,7 @@ class PlaceServiceIT extends AbstractPostgresIT {
         assertThat(placeRepository.count()).isEqualTo(1);
 
         // Same search again → served from cache/DB, no extra upstream request
-        List<PlaceResponse> second = placeService.search("hamburger", null, 41.0370, 28.9851, 1500, null);
+        List<PlaceResponse> second = placeService.search("hamburger", null, 41.0370, 28.9851, 1500);
         assertThat(second).hasSize(1);
         wireMock.verify(1, postRequestedFor(urlPathEqualTo("/v1/places:searchText")));
     }
@@ -111,7 +111,7 @@ class PlaceServiceIT extends AbstractPostgresIT {
         wireMock.stubFor(post(urlPathEqualTo("/v1/places:searchNearby"))
                 .willReturn(okJson("{ \"places\": [] }")));
 
-        assertThat(placeService.search("", null, 10.0, 10.0, 500, null)).isEmpty();
+        assertThat(placeService.search("", null, 10.0, 10.0, 500)).isEmpty();
         assertThat(placeRepository.count()).isZero();
     }
 }

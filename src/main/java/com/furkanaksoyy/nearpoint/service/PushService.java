@@ -1,6 +1,5 @@
 package com.furkanaksoyy.nearpoint.service;
 
-import com.furkanaksoyy.nearpoint.exception.UpstreamUnavailableException;
 import com.furkanaksoyy.nearpoint.model.PushSubscription;
 import com.furkanaksoyy.nearpoint.repository.PushSubscriptionRepository;
 import jakarta.annotation.PostConstruct;
@@ -40,6 +39,10 @@ public class PushService {
 
     @PostConstruct
     void init() {
+        if (publicKey == null || publicKey.isBlank() || privateKey == null || privateKey.isBlank()) {
+            log.info("Web push disabled (VAPID keys not configured)");
+            return;
+        }
         if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
             Security.addProvider(new BouncyCastleProvider());
         }
@@ -61,16 +64,15 @@ public class PushService {
         sub.setP256dh(p256dh);
         sub.setAuth(auth);
         sub.setUserId(userId);
-        if (sub.getCreatedAt() == null) {
+        boolean isNew = sub.getCreatedAt() == null;
+        if (isNew) {
             sub.setCreatedAt(LocalDateTime.now());
         }
         repository.save(sub);
-    }
-
-    public void sendTest(String endpoint) {
-        PushSubscription sub = repository.findByEndpoint(endpoint)
-                .orElseThrow(() -> new UpstreamUnavailableException("No such subscription"));
-        send(sub, "{\"title\":\"NearPoint\",\"body\":\"Notifications are on 🎉 We'll ping you about great places nearby.\",\"url\":\"/\"}");
+        // Send a confirmation ping server-side (no separate, probeable endpoint)
+        if (isNew) {
+            send(sub, "{\"title\":\"NearPoint\",\"body\":\"Notifications are on 🎉 We'll ping you about great places nearby.\",\"url\":\"/\"}");
+        }
     }
 
     public void send(PushSubscription sub, String jsonPayload) {

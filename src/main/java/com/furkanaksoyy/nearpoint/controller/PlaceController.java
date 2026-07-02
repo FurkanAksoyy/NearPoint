@@ -53,7 +53,7 @@ public class PlaceController {
 
         List<PlaceResponse> places = placeService.search(
                 request.query(), request.category(),
-                request.latitude(), request.longitude(), request.radius(), request.openNow());
+                request.latitude(), request.longitude(), request.radius());
         return ResponseEntity.ok(places);
     }
 

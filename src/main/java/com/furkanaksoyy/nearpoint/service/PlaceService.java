@@ -43,10 +43,10 @@ public class PlaceService {
      * full search (query + category + location + radius). Empty results are not cached.
      */
     @Cacheable(cacheNames = "nearbyPlaces",
-            key = "T(java.util.Objects).hash(#query, #category, #latitude, #longitude, #radius)",
+            key = "T(com.furkanaksoyy.nearpoint.util.SearchKey).of(#query, #category, #latitude, #longitude, #radius)",
             unless = "#result == null || #result.isEmpty()")
     public List<PlaceResponse> search(String query, String category,
-                                      Double latitude, Double longitude, Integer radius, Boolean openNow) {
+                                      Double latitude, Double longitude, Integer radius) {
         String q = normalize(query);
         String cat = normalize(category);
 
@@ -56,7 +56,7 @@ public class PlaceService {
             return placeMapper.toResponseList(existing);
         }
 
-        Map<String, Object> body = googlePlacesClient.search(query, category, latitude, longitude, radius, openNow);
+        Map<String, Object> body = googlePlacesClient.search(query, category, latitude, longitude, radius);
         List<Place> places = parsePlaces(body, q, cat, latitude, longitude, radius);
 
         if (!places.isEmpty()) {
