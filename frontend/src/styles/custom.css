@@ -182,11 +182,11 @@ h1, h2, h3, h4, h5, .fw-display {
 .np-login {
     display: inline-flex; align-items: center; gap: 6px;
     height: 38px; padding: 0 13px;
-    border-radius: 10px; border: 1px solid var(--accent-strong);
-    background: var(--accent-strong); color: #fff;
+    border-radius: 10px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff;
     font-weight: 600; font-size: 0.85rem; cursor: pointer;
 }
-.np-login:hover { background: #A5381A; }
+.np-login:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
 .np-user {
     display: inline-flex; align-items: center; gap: 6px;
     height: 38px; padding: 0 10px; color: var(--body); font-weight: 600; font-size: 0.85rem;
@@ -306,11 +306,11 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .btn-loc:hover { background: var(--line-soft); }
 .btn-go {
-    background: var(--accent-strong);
-    border-color: var(--accent-strong);
+    background: var(--accent);
+    border-color: var(--accent);
     color: #fff;
 }
-.btn-go:hover { background: #A5381A; }
+.btn-go:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
 .btn-go:active { transform: translateY(1px); }
 .btn-go:disabled { background: var(--muted); border-color: var(--muted); cursor: not-allowed; }
 
@@ -343,8 +343,8 @@ h1, h2, h3, h4, h5, .fw-display {
 }
 .chip:hover { border-color: var(--accent); color: var(--accent-strong); }
 .chip.active {
-    background: var(--accent-strong);
-    border-color: var(--accent-strong);
+    background: var(--accent);
+    border-color: var(--accent);
     color: #fff;
 }
 
@@ -658,11 +658,11 @@ h1, h2, h3, h4, h5, .fw-display {
 .detail-actions { display: flex; gap: 8px; margin-top: 16px; }
 .btn-ember {
     display: inline-flex; align-items: center; gap: 7px;
-    background: var(--accent-strong); color: #fff; border: none;
+    background: var(--accent); color: #fff; border: none;
     border-radius: var(--r-input); padding: 10px 16px; font-weight: 600; text-decoration: none;
     font-size: 0.9rem;
 }
-.btn-ember:hover { background: #A5381A; color: #fff; }
+.btn-ember:hover { background: var(--accent-strong); color: #fff; }
 .btn-ghost {
     display: inline-flex; align-items: center; gap: 7px;
     background: var(--surface); color: var(--ink); border: 1px solid var(--line);
