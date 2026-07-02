@@ -1136,6 +1136,21 @@ h1, h2, h3, h4, h5, .fw-display {
     font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
     color: var(--muted); margin: 22px 0 12px;
 }
+.admin-poll-panel {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    padding: 16px 18px; border-radius: var(--r-card);
+    background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff;
+}
+.admin-poll-panel .app-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.admin-poll-panel .app-ic { width: 44px; height: 44px; border-radius: 12px; flex: 0 0 auto; display: grid; place-items: center; background: rgba(255, 255, 255, 0.2); }
+.admin-poll-panel .app-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9; }
+.admin-poll-panel .app-name { font-weight: 700; font-size: 1.02rem; }
+.admin-poll-panel .app-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+.admin-poll-panel .app-actions .btn-ghost { background: rgba(255, 255, 255, 0.16); border-color: transparent; color: #fff; }
+.admin-poll-panel .app-actions .btn-ghost:hover { background: rgba(255, 255, 255, 0.28); }
+.admin-poll-panel .app-actions .btn-ember { background: #fff; color: var(--accent-strong); }
+.admin-poll-panel .app-actions .btn-ember:hover { background: #fff; filter: brightness(0.95); }
+
 .admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .admin-grid.traffic { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .admin-card {
