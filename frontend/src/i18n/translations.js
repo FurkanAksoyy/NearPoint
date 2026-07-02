@@ -84,6 +84,7 @@ export const translations = {
         'saved.count': 'saved',
         'saved.empty': 'No saved places yet. Tap the heart on any place to save it here.',
         'saved.discover': 'Discover places',
+        'saved.plan': 'Plan a trip',
 
         'map.search_area': 'Search this area',
         'map.list': 'List',
@@ -99,6 +100,10 @@ export const translations = {
         'about.what_b': 'NearPoint helps you discover places around you fast. Search a keyword like “hamburger” or “coffee”, tap a category, or use your location — and browse the results on a synced map with ratings, distance, price and open-now status.',
         'about.how_t': 'How it works',
         'about.tech_t': 'Tech stack',
+        'about.tagline': 'Find what’s good near you — search a keyword, browse a synced map, and plan your day.',
+        'about.cta_discover': 'Start discovering',
+        'about.cta_best': 'See top picks',
+        'about.features_h': 'Everything you need to explore',
 
         'a11y.theme': 'Toggle dark mode',
         'a11y.lang': 'Change language',
@@ -215,6 +220,7 @@ export const translations = {
         'saved.count': 'kayıtlı',
         'saved.empty': 'Henüz kayıtlı yer yok. Bir yerin kalbine dokunarak buraya kaydet.',
         'saved.discover': 'Yerleri keşfet',
+        'saved.plan': 'Gezi oluştur',
 
         'map.search_area': 'Bu bölgede ara',
         'map.list': 'Liste',
@@ -230,6 +236,10 @@ export const translations = {
         'about.what_b': 'NearPoint, çevrendeki yerleri hızlıca keşfetmene yardım eder. “hamburger” ya da “kahve” gibi bir kelime ara, bir kategoriye dokun ya da konumunu kullan — sonuçları puan, mesafe, fiyat ve açık/kapalı bilgisiyle senkron bir haritada gez.',
         'about.how_t': 'Nasıl çalışır',
         'about.tech_t': 'Teknolojiler',
+        'about.tagline': 'Yakınında iyi olanı bul — kelime ara, senkron haritada gez, gününü planla.',
+        'about.cta_discover': 'Keşfetmeye başla',
+        'about.cta_best': 'Öne çıkanlar',
+        'about.features_h': 'Keşfetmek için gereken her şey',
 
         'a11y.theme': 'Karanlık modu değiştir',
         'a11y.lang': 'Dili değiştir',

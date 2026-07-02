@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Path, ArrowUp, ArrowDown, X, MagnifyingGlass, Star, ArrowsClockwise, MapTrifold } from '@phosphor-icons/react';
+import { Path, ArrowUp, ArrowDown, X, MagnifyingGlass, Star, ArrowsClockwise, MapTrifold, Ruler, Clock } from '@phosphor-icons/react';
 import Seo from '../components/Seo';
+import RouteMap from '../components/RouteMap';
 import { photoUrl, prettyType } from '../utils/places';
+import { routeDistance, formatDistance, walkMinutes } from '../utils/geo';
 import { useSettings } from '../context/AppSettings';
 import { useTrip } from '../context/Trip';
 
@@ -41,6 +43,14 @@ const TripPage = () => {
                 </div>
             ) : (
                 <>
+                    <RouteMap stops={trip} height={280} />
+
+                    <div className="route-summary">
+                        <span className="rs"><Path size={16} weight="fill" className="ic" /> {trip.length} {t('trip.stops')}</span>
+                        <span className="rs"><Ruler size={16} className="ic" /> {formatDistance(routeDistance(trip))}</span>
+                        <span className="rs"><Clock size={16} className="ic" /> ~{walkMinutes(routeDistance(trip))} min</span>
+                    </div>
+
                     <div className="trip-actions">
                         {trip.length >= 3 && (
                             <button className="btn-ghost" onClick={optimize}><ArrowsClockwise size={17} weight="bold" /> {t('trip.optimize')}</button>

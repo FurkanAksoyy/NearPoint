@@ -1,16 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { NavigationArrow, CircleNotch, MapPin, Star, Path } from '@phosphor-icons/react';
+import { NavigationArrow, CircleNotch, MapPin, Star, Path, Ruler, Clock } from '@phosphor-icons/react';
 import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
+import RouteMap from '../components/RouteMap';
 import Seo from '../components/Seo';
 import { photoUrl, prettyType } from '../utils/places';
-import { distanceMeters, formatDistance } from '../utils/geo';
+import { distanceMeters, formatDistance, routeDistance, walkMinutes } from '../utils/geo';
 import { itemListJsonLd } from '../utils/jsonld';
 import { useSettings } from '../context/AppSettings';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 
-// Greedy nearest-neighbour ordering from the center → a walkable route
+const THEMES = [
+    { key: 'tourist_attraction', en: 'History', tr: 'Tarih' },
+    { key: 'museum', en: 'Museums', tr: 'Müzeler' },
+    { key: 'art_gallery', en: 'Art', tr: 'Sanat' },
+    { key: 'park', en: 'Nature', tr: 'Doğa' },
+];
+
 function orderRoute(center, places) {
     const remaining = [...places];
     const route = [];
@@ -42,6 +49,7 @@ function tourUrl(center, route) {
 
 const ToursPage = ({ coords, favorites, onToggleFav, onCoords }) => {
     const { t, lang } = useSettings();
+    const [theme, setTheme] = useState('tourist_attraction');
     const [route, setRoute] = useState(null);
     const [locating, setLocating] = useState(false);
     const [selected, setSelected] = useState(null);
@@ -51,7 +59,7 @@ const ToursPage = ({ coords, favorites, onToggleFav, onCoords }) => {
         let cancelled = false;
         setRoute(null);
         axios.get(`${API_BASE_URL}/api/places/nearby`, {
-            params: { latitude: coords.lat, longitude: coords.lng, radius: 4000, category: 'tourist_attraction' },
+            params: { latitude: coords.lat, longitude: coords.lng, radius: 4000, category: theme },
         }).then((res) => {
             if (cancelled) return;
             const top = res.data
@@ -61,7 +69,7 @@ const ToursPage = ({ coords, favorites, onToggleFav, onCoords }) => {
             setRoute(orderRoute(coords, top).map((p) => ({ ...p, _distance: distanceMeters(coords.lat, coords.lng, p.latitude, p.longitude) })));
         }).catch(() => { if (!cancelled) setRoute([]); });
         return () => { cancelled = true; };
-    }, [coords]);
+    }, [coords, theme]);
 
     const locate = useCallback(() => {
         if (!navigator.geolocation) return;
@@ -75,6 +83,7 @@ const ToursPage = ({ coords, favorites, onToggleFav, onCoords }) => {
 
     const openDetail = (p) => { setSelected(p); setShow(true); };
     const jsonLd = route && route.length ? itemListJsonLd(route, { name: t('tours.title') }) : undefined;
+    const dist = route && route.length ? routeDistance([{ latitude: coords.lat, longitude: coords.lng }, ...route]) : 0;
 
     return (
         <div className="tours-page">
@@ -91,42 +100,56 @@ const ToursPage = ({ coords, favorites, onToggleFav, onCoords }) => {
                 </button>
             </div>
 
-            {route && route.length > 0 && (
-                <a className="btn-ember tour-start" href={tourUrl(coords, route)} target="_blank" rel="noopener noreferrer">
-                    <Path size={18} weight="fill" /> {t('tours.start')} · {route.length} {t('tours.stop')}
-                </a>
-            )}
+            <div className="tour-tabs">
+                {THEMES.map((th) => (
+                    <button key={th.key} className={`tour-tab ${theme === th.key ? 'active' : ''}`} onClick={() => setTheme(th.key)}>
+                        {lang === 'tr' ? th.tr : th.en}
+                    </button>
+                ))}
+            </div>
 
-            {route === null && (
-                <div className="pane-state"><CircleNotch size={26} className="spin" /></div>
-            )}
+            {route === null && <div className="pane-state"><CircleNotch size={26} className="spin" /></div>}
 
             {route && route.length === 0 && (
                 <div className="pane-state"><div className="ic"><MapPin size={24} /></div><p>{t('tours.empty')}</p></div>
             )}
 
             {route && route.length > 0 && (
-                <ol className="tour-list">
-                    {route.map((p, i) => {
-                        const img = photoUrl(p.photoReference, 200);
-                        return (
-                            <li className="tour-stop" key={p.id} onClick={() => openDetail(p)}>
-                                <span className="tour-num">{i + 1}</span>
-                                {img
-                                    ? <img className="tour-thumb" src={img} alt={p.name} loading="lazy" />
-                                    : <div className="tour-thumb placeholder"><MapPin size={22} /></div>}
-                                <div className="tour-body">
-                                    <div className="tour-name">{p.name}</div>
-                                    <div className="place-meta">
-                                        {p.rating != null && <span className="rating"><Star size={13} weight="fill" className="star" />{p.rating}</span>}
-                                        <span className="dot-sep">·</span><span>{prettyType(p.types)}</span>
-                                        {p._distance != null && <><span className="dot-sep">·</span><span className="mono">{formatDistance(p._distance)}</span></>}
+                <>
+                    <RouteMap stops={route} height={280} onSelect={openDetail} />
+
+                    <div className="route-summary">
+                        <span className="rs"><Path size={16} weight="fill" className="ic" /> {route.length} {t('tours.stop')}</span>
+                        <span className="rs"><Ruler size={16} className="ic" /> {formatDistance(dist)}</span>
+                        <span className="rs"><Clock size={16} className="ic" /> ~{walkMinutes(dist)} min</span>
+                    </div>
+
+                    <a className="btn-ember tour-start" href={tourUrl(coords, route)} target="_blank" rel="noopener noreferrer">
+                        <Path size={18} weight="fill" /> {t('tours.start')}
+                    </a>
+
+                    <ol className="tour-list">
+                        {route.map((p, i) => {
+                            const img = photoUrl(p.photoReference, 200);
+                            return (
+                                <li className="tour-stop" key={p.id} onClick={() => openDetail(p)}>
+                                    <span className="tour-num">{i + 1}</span>
+                                    {img
+                                        ? <img className="tour-thumb" src={img} alt={p.name} loading="lazy" />
+                                        : <div className="tour-thumb placeholder"><MapPin size={22} /></div>}
+                                    <div className="tour-body">
+                                        <div className="tour-name">{p.name}</div>
+                                        <div className="place-meta">
+                                            {p.rating != null && <span className="rating"><Star size={13} weight="fill" className="star" />{p.rating}</span>}
+                                            <span className="dot-sep">·</span><span>{prettyType(p.types)}</span>
+                                            {p._distance != null && <><span className="dot-sep">·</span><span className="mono">{formatDistance(p._distance)}</span></>}
+                                        </div>
                                     </div>
-                                </div>
-                            </li>
-                        );
-                    })}
-                </ol>
+                                </li>
+                            );
+                        })}
+                    </ol>
+                </>
             )}
 
             <PlaceDetailDrawer
