@@ -19,6 +19,7 @@ const BestOf = lazy(() => import('./pages/BestOf'));
 const ToursPage = lazy(() => import('./pages/ToursPage'));
 const TripPage = lazy(() => import('./pages/TripPage'));
 const NearPage = lazy(() => import('./pages/NearPage'));
+const SharedList = lazy(() => import('./pages/SharedList'));
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8070';
 const DEFAULT_COORDS = { lat: 41.0370, lng: 28.9851 }; // Istanbul
@@ -307,6 +308,7 @@ function App() {
                     <ToursPage coords={coords} favorites={favIds} onToggleFav={toggleFav} onCoords={setCoords} />
                 } />
                 <Route path="/trip" element={<TripPage savedPlaces={favorites} />} />
+                <Route path="/s/:slug" element={<SharedList />} />
                 <Route path="/near/:city/:category" element={
                     <NearPage favorites={favIds} onToggleFav={toggleFav} />
                 } />

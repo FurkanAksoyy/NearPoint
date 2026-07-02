@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HeartBreak, MagnifyingGlass, MapTrifold, SealCheck } from '@phosphor-icons/react';
+import { HeartBreak, MagnifyingGlass, MapTrifold, SealCheck, ShareNetwork, Check } from '@phosphor-icons/react';
 import PlacesList from '../components/PlacesList';
 import PlaceDetailDrawer from '../components/PlaceDetailDrawer';
 import RouteMap from '../components/RouteMap';
 import Seo from '../components/Seo';
 import { prettyType } from '../utils/places';
+import { shareList } from '../utils/share';
 import { useSettings } from '../context/AppSettings';
 import { useTrip } from '../context/Trip';
 import { useVisited } from '../context/Visited';
@@ -18,8 +19,17 @@ const Saved = ({ favorites, favIds, onToggleFav }) => {
     const [tab, setTab] = useState('saved');
     const [selected, setSelected] = useState(null);
     const [show, setShow] = useState(false);
+    const [shared, setShared] = useState(false);
 
     const openDetail = (place) => { setSelected(place); setShow(true); };
+
+    const doShare = async () => {
+        try {
+            await shareList(t('saved.tab_saved'), 'saved', favorites);
+            setShared(true);
+            setTimeout(() => setShared(false), 1800);
+        } catch { /* ignore */ }
+    };
 
     const planTrip = () => {
         favorites.forEach((f) => { if (!inTrip(f.placeId)) toggleTrip(f); });
@@ -53,11 +63,17 @@ const Saved = ({ favorites, favIds, onToggleFav }) => {
                     <>
                         <div className="results-head" style={{ margin: '0 4px 14px' }}>
                             <span className="count">{favorites.length} {t('saved.count')}</span>
-                            {favorites.length > 1 && (
-                                <button className="btn-ember" onClick={planTrip} style={{ border: 'none' }}>
-                                    <MapTrifold size={16} weight="fill" /> {t('saved.plan')}
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button className="btn-ghost" onClick={doShare}>
+                                    {shared ? <Check size={16} color="#15803D" /> : <ShareNetwork size={16} />}
+                                    {shared ? t('share.copied') : t('share.action')}
                                 </button>
-                            )}
+                                {favorites.length > 1 && (
+                                    <button className="btn-ember" onClick={planTrip} style={{ border: 'none' }}>
+                                        <MapTrifold size={16} weight="fill" /> {t('saved.plan')}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         {mappableFav.length > 1 && <RouteMap stops={mappableFav} connect={false} height={240} onSelect={openDetail} />}
                         <PlacesList places={favorites} favorites={favIds} onToggleFav={onToggleFav} onSelect={openDetail} hoveredId={null} onHover={() => {}} />

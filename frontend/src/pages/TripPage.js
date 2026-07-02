@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Path, ArrowUp, ArrowDown, X, MagnifyingGlass, Star, ArrowsClockwise,
-    MapTrifold, Ruler, Clock, PlayCircle, Plus, BookmarkSimple, PersonSimpleWalk,
+    MapTrifold, Ruler, Clock, PlayCircle, Plus, BookmarkSimple, PersonSimpleWalk, ShareNetwork, Check,
 } from '@phosphor-icons/react';
 import Seo from '../components/Seo';
 import RouteMap from '../components/RouteMap';
@@ -10,6 +10,7 @@ import GuidedRoute from '../components/GuidedRoute';
 import { photoUrl, prettyType } from '../utils/places';
 import { formatDistance } from '../utils/geo';
 import { planRoute, formatDuration } from '../utils/route';
+import { shareList } from '../utils/share';
 import { useSettings } from '../context/AppSettings';
 import { useTrip } from '../context/Trip';
 
@@ -30,8 +31,16 @@ const TripPage = ({ savedPlaces = [] }) => {
     const [name, setName] = useState(() => localStorage.getItem(NAME_KEY) || '');
     const [guided, setGuided] = useState(false);
     const [showAdd, setShowAdd] = useState(false);
+    const [shared, setShared] = useState(false);
 
     const setTripName = (v) => { setName(v); localStorage.setItem(NAME_KEY, v); };
+    const doShare = async () => {
+        try {
+            await shareList(name || t('trip.title'), 'trip', trip);
+            setShared(true);
+            setTimeout(() => setShared(false), 1800);
+        } catch { /* ignore */ }
+    };
     const plan = planRoute(trip);
     const addable = savedPlaces.filter((p) => !inTrip(p.placeId));
 
@@ -75,6 +84,10 @@ const TripPage = ({ savedPlaces = [] }) => {
                         <a className="btn-ghost" href={routeUrl(trip)} target="_blank" rel="noopener noreferrer">
                             <MapTrifold size={17} weight="fill" /> {t('trip.open')}
                         </a>
+                        <button className="btn-ghost" onClick={doShare}>
+                            {shared ? <Check size={17} color="#15803D" /> : <ShareNetwork size={17} />}
+                            {shared ? t('share.copied') : t('share.action')}
+                        </button>
                     </div>
 
                     <ol className="tour-list trip-list">

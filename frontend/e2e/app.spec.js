@@ -177,6 +177,28 @@ test('trip planner: add a place, see it on /trip with a route link', async ({ pa
     await page.screenshot({ path: testInfo.outputPath('trip.png'), fullPage: false });
 });
 
+test('share: a trip becomes a public link that renders read-only', async ({ page, context }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop');
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/');
+    await page.waitForTimeout(800);
+    const places = await page.evaluate(async () => {
+        const r = await fetch('http://localhost:8070/api/places/nearby?latitude=41.037&longitude=28.985&radius=2000&query=hamburger');
+        return (await r.json()).slice(0, 3);
+    });
+    await page.evaluate((p) => localStorage.setItem('np_trip', JSON.stringify(p)), places);
+
+    await page.goto('/trip');
+    await page.locator('.btn-ghost').filter({ hasText: /Share/i }).click();
+    await page.waitForTimeout(1000);
+    const url = await page.evaluate(() => navigator.clipboard.readText());
+    expect(url).toContain('/s/');
+
+    await page.goto(url);
+    await expect(page.locator('.shared-sub')).toBeVisible();
+    await expect(page.locator('.tour-stop').first()).toBeVisible();
+});
+
 test('compare + decide: side-by-side table picks a winner', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop');
     await page.goto('/?q=hamburger&lat=41.037&lng=28.985');

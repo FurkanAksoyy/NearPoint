@@ -801,6 +801,8 @@ h1, h2, h3, h4, h5, .fw-display {
 .mood-chip:active { transform: scale(0.97); }
 .mood-emoji { font-size: 1rem; line-height: 1; }
 
+.shared-sub { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 600; }
+
 /* ---------- Route map (tours / trip / saved) ---------- */
 .route-map {
     width: 100%;
